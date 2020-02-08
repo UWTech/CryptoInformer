@@ -1,4 +1,4 @@
-package com.example.cryptoinformer.ui.crypto_tools_and_apps;
+package com.example.cryptoinformer.ui.crypto_prices;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,17 +14,17 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.cryptoinformer.R;
 
-public class NotificationsFragment extends Fragment {
+public class CryptoPricesFragment extends Fragment {
 
-    private NotificationsViewModel notificationsViewModel;
+    private CryptoPricesViewModel dashboardViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        notificationsViewModel =
-                ViewModelProviders.of(this).get(NotificationsViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_tools_and_apps, container, false);
-        final TextView textView = root.findViewById(R.id.text_notifications);
-        notificationsViewModel.getText().observe(this, new Observer<String>() {
+        dashboardViewModel =
+                ViewModelProviders.of(this).get(CryptoPricesViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_prices, container, false);
+        final TextView textView = root.findViewById(R.id.text_dashboard);
+        dashboardViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);

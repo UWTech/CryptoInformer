@@ -13,13 +13,13 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.example.cryptoinformer.ui.crypto_prices.DashboardFragment"
+        android:name="com.example.cryptoinformer.ui.crypto_prices.CryptoPricesFragment"
         android:label="@string/title_crypto_prices"
         tools:layout="@layout/fragment_prices" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.example.cryptoinformer.ui.crypto_tools_and_apps.NotificationsFragment"
+        android:name="com.example.cryptoinformer.ui.crypto_tools_and_apps.CryptoToolsAndAppsFragment"
         android:label="@string/title_crypto_apps"
         tools:layout="@layout/fragment_tools_and_apps" />
 </navigation>
