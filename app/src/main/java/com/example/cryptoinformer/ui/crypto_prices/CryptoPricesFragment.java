@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -23,7 +24,14 @@ public class CryptoPricesFragment extends Fragment {
         dashboardViewModel =
                 ViewModelProviders.of(this).get(CryptoPricesViewModel.class);
         View root = inflater.inflate(R.layout.fragment_prices, container, false);
-        final TextView textView = root.findViewById(R.id.text_dashboard);
+
+        LinearLayout pricesLinearLayout = (LinearLayout) root.findViewById(R.id.price_linear_layout);
+
+        TextView dynamicPriceViewElement = new TextView(getContext());
+        dynamicPriceViewElement.setText("Programmtically Generated Text");
+        pricesLinearLayout.addView(dynamicPriceViewElement);
+
+        final TextView textView = root.findViewById(R.id.prices);
         dashboardViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
