@@ -15,11 +15,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.cryptoinformer.R;
-import com.example.cryptoinformer.ui.crypto_news.cryptoRss.RSSRetriver;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
+import com.example.cryptoinformer.ui.crypto_news.crypto_rss.RSSRetriver;
 
 public class NewsFragment extends Fragment {
 
@@ -43,15 +39,15 @@ public class NewsFragment extends Fragment {
 
         try {
             // populate RSS feed info in class instance
-            rssRetriver.getRSSFeed();
+            rssRetriver.getRSSFeeds();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         // dynamically add RSS feed items to view
-        for (String title: rssRetriver.getTitles()) {
+        for (String k : rssRetriver.getTitleMapKeyset()) {
+            // TODO:: stylize elements
             TextView dynamicNewsViewElement = new TextView(getContext());
-            dynamicNewsViewElement.setText(title);
+            dynamicNewsViewElement.setText(k + " " + rssRetriver.getTitleRecord(k) + "\n");
             newsLinearLayout.addView(dynamicNewsViewElement);
         }
 
