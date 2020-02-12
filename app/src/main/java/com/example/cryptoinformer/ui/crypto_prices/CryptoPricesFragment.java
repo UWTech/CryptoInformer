@@ -51,7 +51,7 @@ public class CryptoPricesFragment extends Fragment {
 
             TextView dynamicPriceViewElement = new TextView(getContext());
             // TODO:: stylize elements, add graphic from logoURL
-            String cryptoPriceString = String.format("Symbol: %s Name: %s Price: %s Logo:%s",
+            String cryptoPriceString = String.format("Symbol: %s \nName: %s \nPrice: %s \nLogo:%s",
                 cryptoPrice.currSymbol, cryptoPrice.currName, cryptoPrice.price, cryptoPrice.logoURL);
             dynamicPriceViewElement.setText(cryptoPriceString + "\n");
             pricesLinearLayout.addView(dynamicPriceViewElement);

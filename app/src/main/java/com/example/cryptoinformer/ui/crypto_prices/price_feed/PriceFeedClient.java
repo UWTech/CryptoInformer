@@ -32,6 +32,16 @@ public class PriceFeedClient {
         this.cryptoSymbols = new ArrayList<>();
         this.cryptoSymbols.add("BTC");
         this.cryptoSymbols.add("ETH");
+        /*
+        this.cryptoSymbols.add("XRP");
+        this.cryptoSymbols.add("BCH");
+        this.cryptoSymbols.add("BSV");
+        this.cryptoSymbols.add("LTC");
+        this.cryptoSymbols.add("EOS");
+        this.cryptoSymbols.add("USDT");
+        this.cryptoSymbols.add("BNB");
+        this.cryptoSymbols.add("ADA");
+        */
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

@@ -49,7 +49,7 @@ public class CryptoPriceGenerator {
                 String logoUrl = record.getString(this.logoURLKey);
 
                 // create new Price record, and add to list
-                PriceRecord priceRecord = new PriceRecord(price, currName, currSymbol, currName);
+                PriceRecord priceRecord = new PriceRecord(price, currName, currSymbol, logoUrl);
                 priceRecords.add(priceRecord);
 
             } catch (JSONException e) {
