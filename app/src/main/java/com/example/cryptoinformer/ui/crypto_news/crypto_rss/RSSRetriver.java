@@ -28,6 +28,10 @@ public class RSSRetriver {
         // TODO:: set this with dependency injection
         // TODO:: add more RSS feeds
         this.RSSFeeds.add("https://cointelegraph.com/rss/tag/blockchain");
+        this.RSSFeeds.add("https://www.coindesk.com/feed");
+        this.RSSFeeds.add("https://news.bitcoin.com/feed/");
+        this.RSSFeeds.add("https://www.newsbtc.com/feed");
+        this.RSSFeeds.add("https://www.cryptoninjas.net/feed/");
     }
 
     public List<String> getTitles() {

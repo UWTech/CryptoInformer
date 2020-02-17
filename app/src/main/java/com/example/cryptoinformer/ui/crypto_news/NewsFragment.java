@@ -2,6 +2,8 @@ package com.example.cryptoinformer.ui.crypto_news;
 
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,10 +46,13 @@ public class NewsFragment extends Fragment {
             e.printStackTrace();
         }
         // dynamically add RSS feed items to view
-        for (String k : rssRetriver.getTitleMapKeyset()) {
+        for (String articleTitle : rssRetriver.getTitleMapKeyset()) {
             // TODO:: stylize elements
+            String rssURL = rssRetriver.getTitleRecord(articleTitle);
             TextView dynamicNewsViewElement = new TextView(getContext());
-            dynamicNewsViewElement.setText(k + " " + rssRetriver.getTitleRecord(k) + "\n");
+            dynamicNewsViewElement.setText(Html.fromHtml("<a href='" + rssURL + "'>" +articleTitle+ "</a>" +"\n"));
+            dynamicNewsViewElement.setClickable(true);
+            dynamicNewsViewElement.setMovementMethod(LinkMovementMethod.getInstance());
             newsLinearLayout.addView(dynamicNewsViewElement);
         }
 
