@@ -23,7 +23,9 @@ public class CryptoPriceGenerator {
     private static String priceKey = "price";
     private static String symbolKey = "symbol";
     private static String logoURLKey = "logo_url";
-
+    private static String durationKey = "1d";
+    private static String priceChangeKey = "price_change";
+    private static String priceChangePercentKey = "price_change_pct";
     public CryptoPriceGenerator(){
         this.feedClient = new PriceFeedClient();
         this.cryptoPrices = new ArrayList<>();
@@ -48,8 +50,13 @@ public class CryptoPriceGenerator {
                 String currSymbol = record.getString(this.symbolKey);
                 String logoUrl = record.getString(this.logoURLKey);
 
+                // get nested values
+                JSONObject innerJson = record.getJSONObject(this.durationKey);
+                String priceChange = innerJson.getString(this.priceChangeKey);
+                String priceChangePercent = innerJson.getString(this.priceChangePercentKey);
+
                 // create new Price record, and add to list
-                PriceRecord priceRecord = new PriceRecord(price, currName, currSymbol, logoUrl);
+                PriceRecord priceRecord = new PriceRecord(price, currName, currSymbol, logoUrl, priceChange, priceChangePercent);
                 priceRecords.add(priceRecord);
 
             } catch (JSONException e) {
@@ -61,5 +68,11 @@ public class CryptoPriceGenerator {
 
     public ArrayList<PriceRecord> getPriceList() {
         return this.cryptoPrices;
+    }
+
+
+    public static void searchForPrice(String symbol) {
+        // capitalize for API
+        symbol = symbol.toUpperCase();
     }
 }

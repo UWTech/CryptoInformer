@@ -3,4 +3,6 @@
     <string name="title_newsfeed">Crypto News</string>
     <string name="title_crypto_prices">Cryto Prices</string>
     <string name="title_crypto_apps">Tools and Apps</string>
+    <string name="currency_hint_text">Ticker Symbol</string>
+    <string name="search_text">Search</string>
 </resources>

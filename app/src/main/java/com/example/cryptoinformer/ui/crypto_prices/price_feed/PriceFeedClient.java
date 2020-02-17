@@ -49,7 +49,7 @@ public class PriceFeedClient {
         /**
          *  generates the URL with supplied parameters as GET request formatted query params
          */
-        String urlString = this.cryptoApiURI + "?key=" + apiToken + /*"&ids=" + String.join(",", symbols) +*/
+        String urlString = this.cryptoApiURI + "?key=" + apiToken + "&ids=" + String.join(",", symbols) +
                 "&interval=" + interval + "&convert=" + currency;
 
         URL apiURL = new URL(urlString);
