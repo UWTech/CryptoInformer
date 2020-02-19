@@ -7,8 +7,6 @@ import androidx.annotation.RequiresApi;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 public class CryptoPriceGenerator {
@@ -33,7 +31,7 @@ public class CryptoPriceGenerator {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public ArrayList<PriceRecord> retrieveCryptoPrices() {
-        JSONArray resp = this.feedClient.getCryptoPrices();
+        JSONArray resp = this.feedClient.getCryptoPrices(feedClient.cryptoSymbols);
         this.cryptoPrices = convertResp(resp);
         return this.cryptoPrices;
     }
@@ -71,8 +69,17 @@ public class CryptoPriceGenerator {
     }
 
 
-    public static void searchForPrice(String symbol) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public ArrayList<PriceRecord> searchForPrice(String symbol, String interval) {
         // capitalize for API
         symbol = symbol.toUpperCase();
+        ArrayList<String> symbols = new ArrayList();
+        symbols.add(symbol);
+
+        JSONArray prices = feedClient.getCryptoPrices(symbols);
+
+        ArrayList<PriceRecord> priceRecods = convertResp(prices);
+
+        return priceRecods;
     }
 }

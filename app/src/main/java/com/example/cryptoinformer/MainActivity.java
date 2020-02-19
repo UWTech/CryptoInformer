@@ -1,21 +1,35 @@
 package com.example.cryptoinformer;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.example.cryptoinformer.ui.crypto_prices.CryptoPricesFragment;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.CryptoPriceGenerator;
+import com.example.cryptoinformer.ui.crypto_prices.price_feed.PriceRecord;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
+    private App app;
+    private CryptoPriceGenerator cryptoPriceGenerator;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,13 +43,40 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+        cryptoPriceGenerator = new CryptoPriceGenerator();
+        //app = new App();
     }
 
     // onclick wrapper for price search button
+    @SuppressLint("ResourceType")
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void searchForPrice(View view) {
         TextInputEditText currencySymbolView = findViewById(R.id.currency_search_text);
         String symbol = currencySymbolView.getText().toString();
-        CryptoPriceGenerator.searchForPrice(symbol);
+        ArrayList<PriceRecord> priceRecords = cryptoPriceGenerator.searchForPrice(symbol, "1d");
+        LinearLayout pricesLinearLayout = (LinearLayout) findViewById(R.id.price_linear_layout);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        // create new Fragment
+        CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
+        ArrayList<TextView> textViews = cryptoPricesFragment.generateTextViewRecrds(priceRecords, pricesLinearLayout, App.getAppContext());
+
+        int i = 0;
+        for (TextView dynamicPriceViewElement : textViews) {
+            pricesLinearLayout.addView(dynamicPriceViewElement, i);
+        }
+        currencySymbolView.setText("");
+        fragmentTransaction.replace(R.id.navigation_prices, cryptoPricesFragment);
+
+        // make keyboard dissappear: https://stackoverflow.com/questions/4841228/after-type-in-edittext-how-to-make-keyboard-disappear
+        InputMethodManager mgr = (InputMethodManager) getSystemService(App.getAppContext().INPUT_METHOD_SERVICE);
+        mgr.hideSoftInputFromWindow(currencySymbolView.getWindowToken(), 0);
+
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+
     }
 
 }

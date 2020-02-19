@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class PriceFeedClient {
      */
 
     // list of abbreviations for crypto currencies to be queried
-    private ArrayList<String> cryptoSymbols;
+    public ArrayList<String> cryptoSymbols;
     // key used to access price feed API
     private String cryptoApiKey;
     private String cryptoApiURI;
@@ -57,9 +58,9 @@ public class PriceFeedClient {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public JSONArray getCryptoPrices() {
+    public JSONArray getCryptoPrices(ArrayList<String> symbols) {
         try {
-            URL apiUrl = generateApiURL(this.cryptoApiKey, this.cryptoSymbols, "1d", "USD");
+            URL apiUrl = generateApiURL(this.cryptoApiKey, symbols, "1d", "USD");
             InputStream cryptoStream = apiUrl.openConnection().getInputStream();
 
             BufferedReader respBuffer = new BufferedReader(new InputStreamReader(cryptoStream));

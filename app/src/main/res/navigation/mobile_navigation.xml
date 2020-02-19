@@ -13,6 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_prices"
+        android:tag="price_fragment"
         android:name="com.example.cryptoinformer.ui.crypto_prices.CryptoPricesFragment"
         android:label="@string/title_crypto_prices"
         tools:layout="@layout/fragment_prices" />
