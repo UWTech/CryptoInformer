@@ -16,6 +16,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.cryptoinformer.App;
 import com.example.cryptoinformer.R;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.CryptoPriceGenerator;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.PriceRecord;
@@ -45,7 +46,7 @@ public class CryptoPricesFragment extends Fragment {
         // retrieve prices
         ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices();
 
-        ArrayList<TextView> textViews = generateTextViewRecrds(prices, pricesLinearLayout, getContext());
+        ArrayList<TextView> textViews = generateTextViewRecrds(prices, pricesLinearLayout, App.getAppContext());
         for (TextView dynamicPriceViewElement : textViews)
             pricesLinearLayout.addView(dynamicPriceViewElement);
 

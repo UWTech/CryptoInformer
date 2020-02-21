@@ -51,10 +51,10 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("ResourceType")
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void searchForPrice(View view) {
-        TextInputEditText currencySymbolView = findViewById(R.id.currency_search_text);
+        TextInputEditText currencySymbolView = view.getRootView().findViewById(R.id.currency_search_text);
         String symbol = currencySymbolView.getText().toString();
         ArrayList<PriceRecord> priceRecords = cryptoPriceGenerator.searchForPrice(symbol, "1d");
-        LinearLayout pricesLinearLayout = (LinearLayout) findViewById(R.id.price_linear_layout);
+        LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -63,11 +63,12 @@ public class MainActivity extends AppCompatActivity {
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
         ArrayList<TextView> textViews = cryptoPricesFragment.generateTextViewRecrds(priceRecords, pricesLinearLayout, App.getAppContext());
 
-        int i = 0;
+        int i = 1;
         for (TextView dynamicPriceViewElement : textViews) {
             pricesLinearLayout.addView(dynamicPriceViewElement, i);
         }
         currencySymbolView.setText("");
+
         fragmentTransaction.replace(R.id.navigation_prices, cryptoPricesFragment);
 
         // make keyboard dissappear: https://stackoverflow.com/questions/4841228/after-type-in-edittext-how-to-make-keyboard-disappear

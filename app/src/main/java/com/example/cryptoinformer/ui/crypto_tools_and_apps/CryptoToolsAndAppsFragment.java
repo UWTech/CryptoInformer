@@ -2,6 +2,8 @@ package com.example.cryptoinformer.ui.crypto_tools_and_apps;
 
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,12 +46,15 @@ public class CryptoToolsAndAppsFragment extends Fragment {
 
         for (AppRecord appRecord: apps) {
 
-            TextView dynamicPriceViewElement = new TextView(getContext());
+            TextView dynamicAppToolElement = new TextView(getContext());
             // TODO:: stylize elements, add graphic from logoURL
             String appMetadataString = String.format("Name: %s \n Description: %s \n Icon URI: %s \nRating: %.1f",
                     appRecord.appName, appRecord.description, appRecord.iconUri, appRecord.rating);
-            dynamicPriceViewElement.setText(appMetadataString + "\n");
-            toolsAndAppsLinearLayout.addView(dynamicPriceViewElement);
+            dynamicAppToolElement.setText(appMetadataString + "\n");
+            toolsAndAppsLinearLayout.addView(dynamicAppToolElement);
+            dynamicAppToolElement.append(Html.fromHtml("<a href='" + appRecord.appUri + "'> Install </a>" +"\n\n" ));
+            dynamicAppToolElement.setClickable(true);
+            dynamicAppToolElement.setMovementMethod(LinkMovementMethod.getInstance());
 
         }
 
