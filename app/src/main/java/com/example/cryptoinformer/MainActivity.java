@@ -16,7 +16,6 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
@@ -63,13 +62,23 @@ public class MainActivity extends AppCompatActivity {
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
         ArrayList<TextView> textViews = cryptoPricesFragment.generateTextViewRecrds(priceRecords, pricesLinearLayout, App.getAppContext());
 
-        int i = 1;
+        int childCount = pricesLinearLayout.getChildCount();
+        // index that price elements start at
+        int priceIndexStart = 1;
+
+        // delete the price elements not pertaining to the search query
+        // size of list shrinks, so we start at the max index, and
+        // subtract one until we reach the set index of static view elements
+        for (int i = childCount - 1; i > priceIndexStart; i--) {
+            pricesLinearLayout.removeViewAt(i);
+        }
+        // start adding new elements after the static elements in the view
         for (TextView dynamicPriceViewElement : textViews) {
-            pricesLinearLayout.addView(dynamicPriceViewElement, i);
+            pricesLinearLayout.addView(dynamicPriceViewElement, priceIndexStart + 1);
         }
         currencySymbolView.setText("");
 
-        fragmentTransaction.replace(R.id.navigation_prices, cryptoPricesFragment);
+        fragmentTransaction.attach(cryptoPricesFragment); /*replace(R.id.navigation_prices,*/
 
         // make keyboard dissappear: https://stackoverflow.com/questions/4841228/after-type-in-edittext-how-to-make-keyboard-disappear
         InputMethodManager mgr = (InputMethodManager) getSystemService(App.getAppContext().INPUT_METHOD_SERVICE);

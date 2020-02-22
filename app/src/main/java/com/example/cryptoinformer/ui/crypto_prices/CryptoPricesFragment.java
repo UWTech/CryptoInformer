@@ -41,7 +41,7 @@ public class CryptoPricesFragment extends Fragment {
         LinearLayout pricesLinearLayout = (LinearLayout) root.findViewById(R.id.price_linear_layout);
         //TODO:: remove this after making class async
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-
+        
         StrictMode.setThreadPolicy(policy);
         // retrieve prices
         ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices();
