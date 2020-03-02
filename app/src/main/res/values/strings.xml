@@ -5,4 +5,11 @@
     <string name="title_crypto_apps">Tools and Apps</string>
     <string name="currency_hint_text">Ticker Symbol</string>
     <string name="search_text">Search</string>
+    <string name="interval_dropdown_label">Interval (Days)</string>
+    <string name="interval_text">Interval (days)</string>
+    <string-array name="interval_array">
+        <item>1</item>
+        <item>7</item>
+        <item>30</item>
+    </string-array>
 </resources>

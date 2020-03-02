@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.cryptoinformer.ui.crypto_prices.CryptoPricesFragment;
@@ -50,9 +51,14 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("ResourceType")
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void searchForPrice(View view) {
+        // current search target
         TextInputEditText currencySymbolView = view.getRootView().findViewById(R.id.currency_search_text);
         String symbol = currencySymbolView.getText().toString();
-        ArrayList<PriceRecord> priceRecords = cryptoPriceGenerator.searchForPrice(symbol, "1d");
+        // current search interval
+        Spinner intervalSpinner = view.getRootView().findViewById(R.id.interval_selector_list);
+        String interval = (String) intervalSpinner.getSelectedItem();
+
+        ArrayList<PriceRecord> priceRecords = cryptoPriceGenerator.searchForPrice(symbol, interval + "d");
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -60,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
-        ArrayList<TextView> textViews = cryptoPricesFragment.generateTextViewRecrds(priceRecords, pricesLinearLayout, App.getAppContext());
+        ArrayList<TextView> textViews = cryptoPricesFragment.generateTextViewRecords(priceRecords, pricesLinearLayout, App.getAppContext());
 
         int childCount = pricesLinearLayout.getChildCount();
         // index that price elements start at

@@ -21,7 +21,7 @@ public class CryptoPriceGenerator {
     private static String priceKey = "price";
     private static String symbolKey = "symbol";
     private static String logoURLKey = "logo_url";
-    private static String durationKey = "1d";
+    private static String defaultIntervalKey = "1d";
     private static String priceChangeKey = "price_change";
     private static String priceChangePercentKey = "price_change_pct";
     public CryptoPriceGenerator(){
@@ -31,12 +31,12 @@ public class CryptoPriceGenerator {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public ArrayList<PriceRecord> retrieveCryptoPrices() {
-        JSONArray resp = this.feedClient.getCryptoPrices(feedClient.cryptoSymbols);
-        this.cryptoPrices = convertResp(resp);
+        JSONArray resp = this.feedClient.getCryptoPrices(feedClient.cryptoSymbols, this.defaultIntervalKey);
+        this.cryptoPrices = convertResp(resp, this.defaultIntervalKey);
         return this.cryptoPrices;
     }
 
-    private ArrayList<PriceRecord> convertResp(JSONArray resp) {
+    private ArrayList<PriceRecord> convertResp(JSONArray resp, String interval) {
 
         ArrayList<PriceRecord> priceRecords = new ArrayList<>();
 
@@ -49,7 +49,7 @@ public class CryptoPriceGenerator {
                 String logoUrl = record.getString(this.logoURLKey);
 
                 // get nested values
-                JSONObject innerJson = record.getJSONObject(this.durationKey);
+                JSONObject innerJson = record.getJSONObject(interval);
                 String priceChange = innerJson.getString(this.priceChangeKey);
                 String priceChangePercent = innerJson.getString(this.priceChangePercentKey);
 
@@ -76,9 +76,9 @@ public class CryptoPriceGenerator {
         ArrayList<String> symbols = new ArrayList();
         symbols.add(symbol);
 
-        JSONArray prices = feedClient.getCryptoPrices(symbols);
+        JSONArray prices = feedClient.getCryptoPrices(symbols, interval);
 
-        ArrayList<PriceRecord> priceRecods = convertResp(prices);
+        ArrayList<PriceRecord> priceRecods = convertResp(prices, interval);
 
         return priceRecods;
     }

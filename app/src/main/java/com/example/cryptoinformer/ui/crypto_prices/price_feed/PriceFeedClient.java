@@ -51,16 +51,16 @@ public class PriceFeedClient {
          *  generates the URL with supplied parameters as GET request formatted query params
          */
         String urlString = this.cryptoApiURI + "?key=" + apiToken + "&ids=" + String.join(",", symbols) +
-                "&interval=" + interval + "&convert=" + currency;
+                "&interval=now%2C" + interval + "&convert=" + currency;
 
         URL apiURL = new URL(urlString);
         return apiURL;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public JSONArray getCryptoPrices(ArrayList<String> symbols) {
+    public JSONArray getCryptoPrices(ArrayList<String> symbols, String interval) {
         try {
-            URL apiUrl = generateApiURL(this.cryptoApiKey, symbols, "1d", "USD");
+            URL apiUrl = generateApiURL(this.cryptoApiKey, symbols, interval, "USD");
             InputStream cryptoStream = apiUrl.openConnection().getInputStream();
 
             BufferedReader respBuffer = new BufferedReader(new InputStreamReader(cryptoStream));

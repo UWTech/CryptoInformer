@@ -34,14 +34,33 @@ android:fillViewport="false">
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <Button
-            android:id="@+id/search_currency"
-            android:inputType="text"
+        <TextView
+            android:id="@+id/interval_dropdown_label_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/search_text"
-            android:onClick="searchForPrice"/>
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="@string/interval_dropdown_label" />
+
+        <Spinner
+            android:id="@+id/interval_selector_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/interval_array"
+            android:prompt="@string/interval_text"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown"/>
+
+        <Button
+            android:id="@+id/search_currency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="text"
+            android:onClick="searchForPrice"
+            android:text="@string/search_text" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

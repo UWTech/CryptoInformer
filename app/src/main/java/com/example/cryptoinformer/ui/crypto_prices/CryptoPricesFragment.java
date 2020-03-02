@@ -46,19 +46,19 @@ public class CryptoPricesFragment extends Fragment {
         // retrieve prices
         ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices();
 
-        ArrayList<TextView> textViews = generateTextViewRecrds(prices, pricesLinearLayout, App.getAppContext());
+        ArrayList<TextView> textViews = generateTextViewRecords(prices, pricesLinearLayout, App.getAppContext());
         for (TextView dynamicPriceViewElement : textViews)
             pricesLinearLayout.addView(dynamicPriceViewElement);
 
         return root;
     }
 
-    public ArrayList<TextView> generateTextViewRecrds(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, Context context) {
+    public ArrayList<TextView> generateTextViewRecords(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, Context context) {
         ArrayList<TextView> cryptoViews = new ArrayList<>();
         for (PriceRecord cryptoPrice: priceRecords) {
             TextView dynamicPriceViewElement = new TextView(context);
             // TODO:: stylize elements, add graphic from logoURL
-            String cryptoPriceString = String.format("Symbol: %s \nName: %s \nPrice: %s Price Change: %s \nLogo:%s",
+            String cryptoPriceString = String.format("Symbol: %s \nName: %s \nPrice: %s \nPrice Change: %s \nLogo:%s",
                     cryptoPrice.currSymbol, cryptoPrice.currName, cryptoPrice.price, cryptoPrice.priceChange, cryptoPrice.logoURL);
             dynamicPriceViewElement.setText(cryptoPriceString + "\n");
             cryptoViews.add(dynamicPriceViewElement);
