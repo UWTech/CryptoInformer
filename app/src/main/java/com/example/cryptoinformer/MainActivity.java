@@ -1,6 +1,7 @@
 package com.example.cryptoinformer;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         }
         // start adding new elements after the static elements in the view
         for (TextView dynamicPriceViewElement : textViews) {
+            dynamicPriceViewElement.setTextColor(Color.RED);
             pricesLinearLayout.addView(dynamicPriceViewElement, priceIndexStart + 1);
         }
         currencySymbolView.setText("");

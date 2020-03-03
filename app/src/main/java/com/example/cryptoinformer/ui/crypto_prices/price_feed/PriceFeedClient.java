@@ -31,9 +31,10 @@ public class PriceFeedClient {
         this.cryptoApiKey = "7bdd3e97382e1313ab309c1397ff8589";
         this.cryptoApiURI = "https://api.nomics.com/v1/currencies/ticker";
         this.cryptoSymbols = new ArrayList<>();
+
         this.cryptoSymbols.add("BTC");
         this.cryptoSymbols.add("ETH");
-        /*
+
         this.cryptoSymbols.add("XRP");
         this.cryptoSymbols.add("BCH");
         this.cryptoSymbols.add("BSV");
@@ -42,7 +43,6 @@ public class PriceFeedClient {
         this.cryptoSymbols.add("USDT");
         this.cryptoSymbols.add("BNB");
         this.cryptoSymbols.add("ADA");
-        */
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

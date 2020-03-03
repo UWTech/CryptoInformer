@@ -1,6 +1,7 @@
 package com.example.cryptoinformer.ui.crypto_prices;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -58,6 +59,13 @@ public class CryptoPricesFragment extends Fragment {
         for (PriceRecord cryptoPrice: priceRecords) {
             TextView dynamicPriceViewElement = new TextView(context);
             // TODO:: stylize elements, add graphic from logoURL
+            Float priceChange = new Float(cryptoPrice.priceChange);
+            String color = null;
+            if (priceChange > 0) {
+                dynamicPriceViewElement.setTextColor(Color.GREEN);
+            } else {
+                dynamicPriceViewElement.setTextColor(Color.RED);
+            }
             String cryptoPriceString = String.format("Symbol: %s \nName: %s \nPrice: %s \nPrice Change: %s \nLogo:%s",
                     cryptoPrice.currSymbol, cryptoPrice.currName, cryptoPrice.price, cryptoPrice.priceChange, cryptoPrice.logoURL);
             dynamicPriceViewElement.setText(cryptoPriceString + "\n");
