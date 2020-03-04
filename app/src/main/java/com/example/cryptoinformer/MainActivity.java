@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         }
         currencySymbolView.setText("");
 
-        fragmentTransaction.attach(cryptoPricesFragment); /*replace(R.id.navigation_prices,*/
+        fragmentTransaction.attach(cryptoPricesFragment);
 
         // make keyboard dissappear: https://stackoverflow.com/questions/4841228/after-type-in-edittext-how-to-make-keyboard-disappear
         InputMethodManager mgr = (InputMethodManager) getSystemService(App.getAppContext().INPUT_METHOD_SERVICE);

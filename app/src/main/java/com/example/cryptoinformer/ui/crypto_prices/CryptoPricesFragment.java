@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -26,9 +27,11 @@ import com.example.cryptoinformer.R;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.CryptoPriceGenerator;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.PriceRecord;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import com.bumptech.glide.*;
+import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
+import com.github.twocoffeesoneteam.glidetovectoryou.SvgDecoder;
 
 public class CryptoPricesFragment extends Fragment {
 
@@ -107,14 +110,12 @@ public class CryptoPricesFragment extends Fragment {
     }
 
     public ImageView generateCurrencyIconView(PriceRecord priceRecord) {
-
         try {
-            // build the URL
-            URL url = new URL(priceRecord.logoURL);
-            //retrieve the Bitmnap
-            Bitmap currencyIcon = BitmapFactory.decodeStream(url.openConnection().getInputStream());
             ImageView curencyIconView = new ImageView(App.context);
-            curencyIconView.setImageBitmap(currencyIcon);
+            GlideToVectorYou
+                    .init()
+                    .with(App.context)
+                    .load(Uri.parse(priceRecord.logoURL), curencyIconView);
             return curencyIconView;
         }
         catch (Exception e){
