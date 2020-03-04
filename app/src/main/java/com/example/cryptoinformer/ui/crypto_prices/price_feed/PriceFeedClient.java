@@ -1,6 +1,9 @@
 package com.example.cryptoinformer.ui.crypto_prices.price_feed;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.StrictMode;
 
 import androidx.annotation.RequiresApi;
 
@@ -8,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
@@ -80,5 +84,21 @@ public class PriceFeedClient {
         }
         // TODO:: error handling framework
         return null;
+    }
+
+    private static Bitmap getBitmapFromWeb(String svgLocation) throws IOException {
+        // allow for blocking call to load image since this is a demo app
+        // avoids complexity of async while getting familiar with file system
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        try {
+            // build the URL
+            URL url = new URL(svgLocation);
+            //retrieve the Bitmnap
+            return BitmapFactory.decodeStream(url.openConnection().getInputStream());
+        } catch (IOException e) {
+            throw e;
+        }
     }
 }

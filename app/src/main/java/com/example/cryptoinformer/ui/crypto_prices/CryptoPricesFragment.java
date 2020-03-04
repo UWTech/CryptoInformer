@@ -1,13 +1,17 @@
 package com.example.cryptoinformer.ui.crypto_prices;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +26,8 @@ import com.example.cryptoinformer.R;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.CryptoPriceGenerator;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.PriceRecord;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class CryptoPricesFragment extends Fragment {
@@ -48,9 +54,26 @@ public class CryptoPricesFragment extends Fragment {
         ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices();
 
         ArrayList<TextView> textViews = generateTextViewRecords(prices, pricesLinearLayout, App.getAppContext());
-        for (TextView dynamicPriceViewElement : textViews)
-            pricesLinearLayout.addView(dynamicPriceViewElement);
 
+        // get icons for currencies
+        ArrayList<ImageView> icons = new ArrayList<>();
+
+        for (PriceRecord priceRecord: prices) {
+            ImageView icon = generateCurrencyIconView(priceRecord);
+            if (icon != null) {
+                icons.add(icon);
+            }
+        }
+
+        int i = 0;
+
+        for (TextView dynamicPriceViewElement : textViews) {
+            if (i < icons.size()) {
+                pricesLinearLayout.addView(icons.get(i));
+            }
+            pricesLinearLayout.addView(dynamicPriceViewElement);
+            i++;
+        }
         return root;
     }
 
@@ -58,20 +81,45 @@ public class CryptoPricesFragment extends Fragment {
         ArrayList<TextView> cryptoViews = new ArrayList<>();
         for (PriceRecord cryptoPrice: priceRecords) {
             TextView dynamicPriceViewElement = new TextView(context);
-            // TODO:: stylize elements, add graphic from logoURL
+            TextView dynamicPriceChange = new TextView(context);
+
             Float priceChange = new Float(cryptoPrice.priceChange);
-            String color = null;
+
+            // determine price change color
             if (priceChange > 0) {
-                dynamicPriceViewElement.setTextColor(Color.GREEN);
+                dynamicPriceChange.setTextColor(Color.GREEN);
             } else {
-                dynamicPriceViewElement.setTextColor(Color.RED);
+                dynamicPriceChange.setTextColor(Color.RED);
             }
-            String cryptoPriceString = String.format("Symbol: %s \nName: %s \nPrice: %s \nPrice Change: %s \nLogo:%s",
-                    cryptoPrice.currSymbol, cryptoPrice.currName, cryptoPrice.price, cryptoPrice.priceChange, cryptoPrice.logoURL);
+            String cryptoPriceString = String.format("%s \n%s \nPrice: %s  \nLogo:%s",
+                    cryptoPrice.currSymbol, cryptoPrice.currName, cryptoPrice.price, cryptoPrice.logoURL);
             dynamicPriceViewElement.setText(cryptoPriceString + "\n");
+            dynamicPriceViewElement.setTypeface(null, Typeface.BOLD);
+
+            String priceChangeString = String.format("%s", cryptoPrice.priceChange);
+            dynamicPriceChange.setText(priceChangeString);
+            dynamicPriceChange.setTypeface(null,Typeface.BOLD_ITALIC);
+
+            cryptoViews.add(dynamicPriceChange);
             cryptoViews.add(dynamicPriceViewElement);
         }
         return cryptoViews;
+    }
+
+    public ImageView generateCurrencyIconView(PriceRecord priceRecord) {
+
+        try {
+            // build the URL
+            URL url = new URL(priceRecord.logoURL);
+            //retrieve the Bitmnap
+            Bitmap currencyIcon = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            ImageView curencyIconView = new ImageView(App.context);
+            curencyIconView.setImageBitmap(currencyIcon);
+            return curencyIconView;
+        }
+        catch (Exception e){
+            return null;
+        }
     }
 
 
