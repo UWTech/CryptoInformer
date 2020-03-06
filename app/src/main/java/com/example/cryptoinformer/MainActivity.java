@@ -80,15 +80,15 @@ public class MainActivity extends AppCompatActivity {
             pricesLinearLayout.removeViewAt(i);
         }
         // start adding new elements after the static elements in the view
-        for (TextView dynamicPriceViewElement : textViews) {
-            dynamicPriceViewElement.setTextColor(Color.RED);
-            pricesLinearLayout.addView(dynamicPriceViewElement, priceIndexStart + 1);
-        }
+        //for (TextView dynamicPriceViewElement : textViews) {
+            cryptoPricesFragment.stylize_layout(textViews, priceRecords, pricesLinearLayout);
+            //pricesLinearLayout.addView(dynamicPriceViewElement, priceIndexStart + 1);
+        //}
         currencySymbolView.setText("");
 
         fragmentTransaction.attach(cryptoPricesFragment);
 
-        // make keyboard dissappear: https://stackoverflow.com/questions/4841228/after-type-in-edittext-how-to-make-keyboard-disappear
+        // make keyboard disappear: https://stackoverflow.com/questions/4841228/after-type-in-edittext-how-to-make-keyboard-disappear
         InputMethodManager mgr = (InputMethodManager) getSystemService(App.getAppContext().INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(currencySymbolView.getWindowToken(), 0);
 

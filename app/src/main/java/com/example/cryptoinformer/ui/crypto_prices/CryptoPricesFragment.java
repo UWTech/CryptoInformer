@@ -1,8 +1,6 @@
 package com.example.cryptoinformer.ui.crypto_prices;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -27,11 +25,8 @@ import com.example.cryptoinformer.R;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.CryptoPriceGenerator;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.PriceRecord;
 
-import java.net.URL;
 import java.util.ArrayList;
-import com.bumptech.glide.*;
 import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
-import com.github.twocoffeesoneteam.glidetovectoryou.SvgDecoder;
 
 public class CryptoPricesFragment extends Fragment {
 
@@ -58,26 +53,32 @@ public class CryptoPricesFragment extends Fragment {
 
         ArrayList<TextView> textViews = generateTextViewRecords(prices, pricesLinearLayout, App.getAppContext());
 
+        stylize_layout(textViews, prices, pricesLinearLayout);
+
+        return root;
+    }
+
+    public void stylize_layout(ArrayList<TextView> textViews, ArrayList<PriceRecord> priceRecords, LinearLayout targetLayout) {
         // get icons for currencies
         ArrayList<ImageView> icons = new ArrayList<>();
 
-        for (PriceRecord priceRecord: prices) {
+        for (PriceRecord priceRecord: priceRecords) {
             ImageView icon = generateCurrencyIconView(priceRecord);
             if (icon != null) {
                 icons.add(icon);
             }
         }
-
-        int i = 0;
-
-        for (TextView dynamicPriceViewElement : textViews) {
-            if (i < icons.size()) {
-                pricesLinearLayout.addView(icons.get(i));
-            }
-            pricesLinearLayout.addView(dynamicPriceViewElement);
-            i++;
+        int iconIndex = 0;
+        for (int i=0; i < textViews.size(); i +=2) {
+            // Element one: Currency icon at the head of the price info
+            targetLayout.addView(icons.get(iconIndex));
+            //increment icon index
+            iconIndex++;
+            // Element two: price change in colored text
+            targetLayout.addView(textViews.get(i));
+            // Element three: other currency metadata
+            targetLayout.addView(textViews.get(i+1));
         }
-        return root;
     }
 
     public ArrayList<TextView> generateTextViewRecords(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, Context context) {
@@ -94,7 +95,7 @@ public class CryptoPricesFragment extends Fragment {
             } else {
                 dynamicPriceChange.setTextColor(Color.RED);
             }
-            String cryptoPriceString = String.format("%s \n%s \nPrice: %s  \nLogo:%s",
+            String cryptoPriceString = String.format("%s \n%s \nPrice: %s",
                     cryptoPrice.currSymbol, cryptoPrice.currName, cryptoPrice.price, cryptoPrice.logoURL);
             dynamicPriceViewElement.setText(cryptoPriceString + "\n");
             dynamicPriceViewElement.setTypeface(null, Typeface.BOLD);
