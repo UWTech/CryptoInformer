@@ -65,19 +65,29 @@ public class CryptoPricesFragment extends Fragment {
         for (PriceRecord priceRecord: priceRecords) {
             ImageView icon = generateCurrencyIconView(priceRecord);
             if (icon != null) {
+                //icon.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 icons.add(icon);
             }
         }
         int iconIndex = 0;
         for (int i=0; i < textViews.size(); i +=2) {
+            // TODO:: make sizing of icon pleasing
             // Element one: Currency icon at the head of the price info
-            targetLayout.addView(icons.get(iconIndex));
+            ImageView sizedIcon = icons.get(iconIndex);
+            //sizedIcon.setScaleType(ImageView.ScaleType.MATRIX);
+            targetLayout.addView(sizedIcon);
             //increment icon index
             iconIndex++;
             // Element two: price change in colored text
-            targetLayout.addView(textViews.get(i));
+            // center text view
+            TextView priceChangeTextView = textViews.get(i);
+            priceChangeTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            targetLayout.addView(priceChangeTextView);
             // Element three: other currency metadata
-            targetLayout.addView(textViews.get(i+1));
+            // center text view
+            TextView currencyMetadataTextView = textViews.get(i+1);
+            currencyMetadataTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            targetLayout.addView(currencyMetadataTextView);
         }
     }
 
@@ -95,13 +105,16 @@ public class CryptoPricesFragment extends Fragment {
             } else {
                 dynamicPriceChange.setTextColor(Color.RED);
             }
-            String cryptoPriceString = String.format("%s \n%s \nPrice: %s",
-                    cryptoPrice.currSymbol, cryptoPrice.currName, cryptoPrice.price, cryptoPrice.logoURL);
-            dynamicPriceViewElement.setText(cryptoPriceString + "\n");
+
+            String currentPrice = String.format("%.2f", new Float(cryptoPrice.price));
+
+            String cryptoPriceString = String.format("%s \n%s \nPrice: $%s",
+                    cryptoPrice.currSymbol, cryptoPrice.currName, currentPrice, cryptoPrice.logoURL);
+            dynamicPriceViewElement.setText(cryptoPriceString + "\n\n\n");
             dynamicPriceViewElement.setTypeface(null, Typeface.BOLD);
 
-            String priceChangeString = String.format("%s", cryptoPrice.priceChange);
-            dynamicPriceChange.setText(priceChangeString);
+            String priceChangeString = String.format("%.2f", priceChange);
+            dynamicPriceChange.setText("$" + priceChangeString);
             dynamicPriceChange.setTypeface(null,Typeface.BOLD_ITALIC);
 
             cryptoViews.add(dynamicPriceChange);

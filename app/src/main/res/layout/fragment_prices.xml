@@ -9,7 +9,8 @@ android:fillViewport="false">
     <LinearLayout
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/price_linear_layout">
+    android:id="@+id/price_linear_layout"
+    android:gravity="center" >
     <TextView
         android:id="@+id/prices"
         android:layout_width="match_parent"
