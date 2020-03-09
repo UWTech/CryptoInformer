@@ -5,10 +5,32 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
 android:layout_width="match_parent"
 android:layout_height="wrap_content"
 android:fillViewport="false">
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/tools_and_apps_linear_layout">
+
+    <Button
+        android:id="@+id/alphabetical_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="sortAppsAlphabetically"
+        android:text="Sort: Alphabetical" />
+
+    <Button
+        android:id="@+id/high_to_low_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="sortAppsHighToLow"
+        android:text="Sort By Rating: High to Low" />
+
+    <Button
+        android:id="@+id/low_to_high_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="sortAppsLowToHigh"
+        android:text="Sort By Rating: Low to High" />
+
     <TextView
         android:id="@+id/text_notifications"
         android:layout_width="match_parent"

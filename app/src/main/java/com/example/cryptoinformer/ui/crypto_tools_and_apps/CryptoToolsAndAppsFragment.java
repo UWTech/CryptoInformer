@@ -52,31 +52,7 @@ public class CryptoToolsAndAppsFragment extends Fragment {
         // retrieve prices
         ArrayList<AppRecord> apps = appMetadataRetriever.getAppMetadata();
 
-        for (AppRecord appRecord: apps) {
-
-            // load icon into view
-            ImageView iconImageView = generateAppViewIcon(appRecord.iconUri);
-            toolsAndAppsLinearLayout.addView(iconImageView);
-
-            // generate download link
-            TextView dynamicDownloadLink = new TextView(getContext());
-            dynamicDownloadLink.append(Html.fromHtml("<a href='" + appRecord.appUri + "'> Install </a>" +"\n" ));
-            dynamicDownloadLink.setClickable(true);
-            dynamicDownloadLink.setMovementMethod(LinkMovementMethod.getInstance());
-            dynamicDownloadLink.setTypeface(null, Typeface.ITALIC);
-            dynamicDownloadLink.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            toolsAndAppsLinearLayout.addView(dynamicDownloadLink);
-
-            // generate metadata for app
-            TextView dynamicAppToolMetadata = new TextView(getContext());
-            String appMetadataString = String.format("Name: %s \n%s \nRating: %.1f\n\n",
-                    appRecord.appName, appRecord.description, appRecord.rating);
-            dynamicAppToolMetadata.setText(appMetadataString + "\n");
-            dynamicAppToolMetadata.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            dynamicAppToolMetadata.setTypeface(null, Typeface.BOLD);
-            toolsAndAppsLinearLayout.addView(dynamicAppToolMetadata);
-
-        }
+        generateAndStylizeView(apps, toolsAndAppsLinearLayout);
 
         final TextView textView = root.findViewById(R.id.text_notifications);
         notificationsViewModel.getText().observe(this, new Observer<String>() {
@@ -86,6 +62,33 @@ public class CryptoToolsAndAppsFragment extends Fragment {
             }
         });
         return root;
+    }
+
+    public void generateAndStylizeView(ArrayList<AppRecord> appRecords, LinearLayout toolsAndAppsLinearLayout) {
+        for (AppRecord appRecord: appRecords) {
+
+            // load icon into view
+            ImageView iconImageView = generateAppViewIcon(appRecord.iconUri);
+            toolsAndAppsLinearLayout.addView(iconImageView);
+
+            // generate download link
+            TextView dynamicDownloadLink = new TextView(App.context);
+            dynamicDownloadLink.append(Html.fromHtml("<a href='" + appRecord.appUri + "'> Install </a>" +"\n" ));
+            dynamicDownloadLink.setClickable(true);
+            dynamicDownloadLink.setMovementMethod(LinkMovementMethod.getInstance());
+            dynamicDownloadLink.setTypeface(null, Typeface.ITALIC);
+            dynamicDownloadLink.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            toolsAndAppsLinearLayout.addView(dynamicDownloadLink);
+
+            // generate metadata for app
+            TextView dynamicAppToolMetadata = new TextView(App.context);
+            String appMetadataString = String.format("%s \n%s \nRating: %.1f\n\n",
+                    appRecord.appName, appRecord.description, appRecord.rating);
+            dynamicAppToolMetadata.setText(appMetadataString + "\n");
+            dynamicAppToolMetadata.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            dynamicAppToolMetadata.setTypeface(null, Typeface.BOLD);
+            toolsAndAppsLinearLayout.addView(dynamicAppToolMetadata);
+        }
     }
 
     public ImageView generateAppViewIcon(String iconURI) {

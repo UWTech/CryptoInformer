@@ -1,7 +1,6 @@
 package com.example.cryptoinformer;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +12,9 @@ import android.widget.TextView;
 import com.example.cryptoinformer.ui.crypto_prices.CryptoPricesFragment;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.CryptoPriceGenerator;
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.PriceRecord;
+import com.example.cryptoinformer.ui.crypto_tools_and_apps.CryptoToolsAndAppsFragment;
+import com.example.cryptoinformer.ui.crypto_tools_and_apps.app_metadata.AppMetadataRetriever;
+import com.example.cryptoinformer.ui.crypto_tools_and_apps.app_metadata.AppRecord;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private App app;
     private CryptoPriceGenerator cryptoPriceGenerator;
+    private AppMetadataRetriever appMetadataRetriever;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
         cryptoPriceGenerator = new CryptoPriceGenerator();
-        //app = new App();
+        appMetadataRetriever = new AppMetadataRetriever();
     }
 
     // onclick wrapper for price search button
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         }
         // start adding new elements after the static elements in the view
         //for (TextView dynamicPriceViewElement : textViews) {
-            cryptoPricesFragment.stylize_layout(textViews, priceRecords, pricesLinearLayout);
+            cryptoPricesFragment.stylizeLayout(textViews, priceRecords, pricesLinearLayout);
             //pricesLinearLayout.addView(dynamicPriceViewElement, priceIndexStart + 1);
         //}
         currencySymbolView.setText("");
@@ -97,4 +101,53 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void sortAppsHighToLow(View view) {
+
+        // sort app records to replace current view
+        ArrayList<AppRecord> appRecords = appMetadataRetriever.getAppMetadata();
+        ArrayList<AppRecord> sortedAppRecords = appMetadataRetriever.sortHighToLow(appRecords);
+        replaceToolsAndAppsView(view, sortedAppRecords);
+    }
+
+
+    public void sortAppsLowToHigh(View view) {
+        // sort app records to replace current view
+        ArrayList<AppRecord> appRecords = appMetadataRetriever.getAppMetadata();
+        ArrayList<AppRecord> sortedAppRecords = appMetadataRetriever.sortLowToHigh(appRecords);
+        replaceToolsAndAppsView(view, sortedAppRecords);
+    }
+
+    public void sortAppsAlphabetically(View view) {
+        // sort app records to replace current view
+        ArrayList<AppRecord> appRecords = appMetadataRetriever.getAppMetadata();
+        ArrayList<AppRecord> sortedAppRecords = appMetadataRetriever.sortAlphabetically(appRecords);
+        replaceToolsAndAppsView(view, sortedAppRecords);
+    }
+
+    public void replaceToolsAndAppsView(View view, ArrayList<AppRecord> sortedAppRecords) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        // fresh fragment for tools and apps view
+        CryptoToolsAndAppsFragment sortedFragment = new CryptoToolsAndAppsFragment();
+        LinearLayout currentAppsAndToolsLayout = (LinearLayout) view.getRootView().findViewById(R.id.tools_and_apps_linear_layout);
+
+        int childCount = currentAppsAndToolsLayout.getChildCount();
+        // index that tools elements start at
+        int toolMetadataIndexStart = 3;
+
+        // delete the tools and apps elements, in order to replace with sorted list
+        for (int i = childCount - 1; i > toolMetadataIndexStart; i--) {
+            currentAppsAndToolsLayout.removeViewAt(i);
+        }
+
+        // add new elements to the linear layout
+        sortedFragment.generateAndStylizeView(sortedAppRecords, currentAppsAndToolsLayout);
+
+        // attach the now sorted fragment
+        fragmentTransaction.attach(sortedFragment);
+
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
 }

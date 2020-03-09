@@ -53,12 +53,12 @@ public class CryptoPricesFragment extends Fragment {
 
         ArrayList<TextView> textViews = generateTextViewRecords(prices, pricesLinearLayout, App.getAppContext());
 
-        stylize_layout(textViews, prices, pricesLinearLayout);
+        stylizeLayout(textViews, prices, pricesLinearLayout);
 
         return root;
     }
 
-    public void stylize_layout(ArrayList<TextView> textViews, ArrayList<PriceRecord> priceRecords, LinearLayout targetLayout) {
+    public void stylizeLayout(ArrayList<TextView> textViews, ArrayList<PriceRecord> priceRecords, LinearLayout targetLayout) {
         // get icons for currencies
         ArrayList<ImageView> icons = new ArrayList<>();
 

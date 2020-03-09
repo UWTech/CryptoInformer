@@ -1,5 +1,7 @@
 package com.example.cryptoinformer.ui.crypto_tools_and_apps.app_metadata;
 
+import java.util.Comparator;
+
 public class AppRecord {
     /**
      * simple class used to contain metdata about a given app

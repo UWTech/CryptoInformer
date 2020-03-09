@@ -1,6 +1,11 @@
 package com.example.cryptoinformer.ui.crypto_tools_and_apps.app_metadata;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+
+import static java.util.Collections.sort;
 
 public class AppMetadataRetriever {
 
@@ -66,6 +71,8 @@ public class AppMetadataRetriever {
     }
 
     public ArrayList<AppRecord> getAppMetadata() {
+        this.apps = new ArrayList<>();
+
         for (int i = 0; i < this.appNames.size(); i++) {
             AppRecord appRecord = new AppRecord(
                     this.appURIs.get(i),
@@ -80,4 +87,40 @@ public class AppMetadataRetriever {
         return apps;
     }
 
+    public ArrayList<AppRecord> sortHighToLow(ArrayList<AppRecord> appRecords) {
+
+        // rely on overriden comparator to return sort
+        Collections.sort(appRecords, new Comparator<AppRecord>() {
+            @Override
+            public int compare(AppRecord lhAppRecord, AppRecord rhApprecord) {
+                return Double.compare(rhApprecord.rating, lhAppRecord.rating);
+            }
+        });
+        return appRecords;
+    }
+
+    public ArrayList<AppRecord> sortLowToHigh(ArrayList<AppRecord> appRecords) {
+
+        // rely on overriden comparator to return sort
+        Collections.sort(appRecords, new Comparator<AppRecord>() {
+            @Override
+            public int compare(AppRecord lhAppRecord, AppRecord rhApprecord) {
+                return Double.compare(lhAppRecord.rating, rhApprecord.rating);
+            }
+        });
+        return appRecords;
+    }
+
+    public ArrayList<AppRecord> sortAlphabetically(ArrayList<AppRecord> appRecords) {
+
+        // rely on overriden comparator to return sort
+        Collections.sort(appRecords, new Comparator<AppRecord>() {
+            @Override
+            public int compare(AppRecord lhAppRecord, AppRecord rhApprecord) {
+                int compareResult = lhAppRecord.appName.compareToIgnoreCase(rhApprecord.appName);
+                return compareResult;
+            }
+        });
+        return appRecords;
+    }
 }
