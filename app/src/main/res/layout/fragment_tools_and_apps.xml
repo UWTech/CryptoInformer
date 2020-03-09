@@ -15,21 +15,21 @@ android:fillViewport="false">
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="sortAppsAlphabetically"
-        android:text="Sort: Alphabetical" />
+        android:text="@string/sort_alphabetical" />
 
     <Button
         android:id="@+id/high_to_low_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="sortAppsHighToLow"
-        android:text="Sort By Rating: High to Low" />
+        android:text="@string/sort_rating_high_low" />
 
     <Button
         android:id="@+id/low_to_high_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="sortAppsLowToHigh"
-        android:text="Sort By Rating: Low to High" />
+        android:text="@string/sort_rating_low_high" />
 
     <TextView
         android:id="@+id/text_notifications"

@@ -11,7 +11,29 @@ android:fillViewport="false">
     android:layout_height="match_parent"
     android:id="@+id/price_linear_layout"
     android:gravity="center" >
-    <TextView
+
+        <Button
+            android:id="@+id/crypto_price_sort_alphabetical_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_alphabetical"
+            android:onClick="sortCryptoAlphabetically"/>
+
+        <Button
+            android:id="@+id/crypto_price_change_low_to_high_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_price_change_low_high"
+            android:onClick="sortCryptoPriceChangeLowToHigh"/>
+
+        <Button
+            android:id="@+id/crypto_price_change_high_to_low_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_price_change_high_low"
+            android:onClick="sortCryptoPriceChangeHighToLow"/>
+
+        <TextView
         android:id="@+id/prices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -65,5 +87,5 @@ android:fillViewport="false">
 
     </com.google.android.material.textfield.TextInputLayout>
 
-</LinearLayout>
+    </LinearLayout>
 </ScrollView>

@@ -26,6 +26,10 @@ import com.example.cryptoinformer.ui.crypto_prices.price_feed.CryptoPriceGenerat
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.PriceRecord;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import com.example.cryptoinformer.ui.crypto_tools_and_apps.app_metadata.AppRecord;
 import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
 
 public class CryptoPricesFragment extends Fragment {
@@ -137,5 +141,36 @@ public class CryptoPricesFragment extends Fragment {
         }
     }
 
+    public ArrayList<PriceRecord> sortCryptoPriceChangeLowToHigh(ArrayList<PriceRecord> priceRecords) {
+        // rely on overriden comparator to return sort
+        Collections.sort(priceRecords, new Comparator<PriceRecord>() {
+            @Override
+            public int compare(PriceRecord lhPriceRecords, PriceRecord rhPriceRecord) {
+                return Double.compare(new Double(lhPriceRecords.priceChange), new Double(rhPriceRecord.priceChange));
+            }
+        });
+        return priceRecords;    }
 
+    public ArrayList<PriceRecord> sortCryptoPriceChangeHightoLow(ArrayList<PriceRecord> priceRecords) {
+        // rely on overriden comparator to return sort
+        Collections.sort(priceRecords, new Comparator<PriceRecord>() {
+            @Override
+            public int compare(PriceRecord lhPriceRecords, PriceRecord rhPriceRecord) {
+                return Double.compare(new Double(rhPriceRecord.priceChange), new Double(lhPriceRecords.priceChange));
+            }
+        });
+        return priceRecords;
+    }
+
+    public ArrayList<PriceRecord> sortCryptoAlphabetically(ArrayList<PriceRecord> priceRecords) {
+        // rely on overriden comparator to return sort
+        Collections.sort(priceRecords, new Comparator<PriceRecord>() {
+            @Override
+            public int compare(PriceRecord lhPrice, PriceRecord rhPrice) {
+                int compareResult = lhPrice.currName.compareToIgnoreCase(rhPrice.currName);
+                return compareResult;
+            }
+        });
+        return priceRecords;
+    }
 }

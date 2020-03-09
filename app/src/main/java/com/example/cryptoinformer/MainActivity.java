@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         appMetadataRetriever = new AppMetadataRetriever();
     }
 
-    // onclick wrapper for price search button
+    // prices
     @SuppressLint("ResourceType")
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void searchForPrice(View view) {
@@ -71,23 +71,9 @@ public class MainActivity extends AppCompatActivity {
 
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
-        ArrayList<TextView> textViews = cryptoPricesFragment.generateTextViewRecords(priceRecords, pricesLinearLayout, App.getAppContext());
 
-        int childCount = pricesLinearLayout.getChildCount();
-        // index that price elements start at
-        int priceIndexStart = 1;
+        refreshPriceView(priceRecords, pricesLinearLayout, cryptoPricesFragment);
 
-        // delete the price elements not pertaining to the search query
-        // size of list shrinks, so we start at the max index, and
-        // subtract one until we reach the set index of static view elements
-        for (int i = childCount - 1; i > priceIndexStart; i--) {
-            pricesLinearLayout.removeViewAt(i);
-        }
-        // start adding new elements after the static elements in the view
-        //for (TextView dynamicPriceViewElement : textViews) {
-            cryptoPricesFragment.stylizeLayout(textViews, priceRecords, pricesLinearLayout);
-            //pricesLinearLayout.addView(dynamicPriceViewElement, priceIndexStart + 1);
-        //}
         currencySymbolView.setText("");
 
         fragmentTransaction.attach(cryptoPricesFragment);
@@ -101,6 +87,76 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void refreshPriceView(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, CryptoPricesFragment cryptoPricesFragment) {
+
+        // create new Fragment
+        ArrayList<TextView> textViews = cryptoPricesFragment.generateTextViewRecords(priceRecords, pricesLinearLayout, App.getAppContext());
+
+        int childCount = pricesLinearLayout.getChildCount();
+        // index that price elements start at
+        int priceIndexStart = 4;
+
+        // delete the price elements not pertaining to the search query
+        // size of list shrinks, so we start at the max index, and
+        // subtract one until we reach the set index of static view elements
+        for (int i = childCount - 1; i > priceIndexStart; i--) {
+            pricesLinearLayout.removeViewAt(i);
+        }
+        cryptoPricesFragment.stylizeLayout(textViews, priceRecords, pricesLinearLayout);
+    }
+
+    @SuppressLint("ResourceType")
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void sortCryptoAlphabetically(View view) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        // create new Fragment
+        CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices();
+        ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoAlphabetically(unsortedPrices);
+        LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
+
+        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment);
+        fragmentTransaction.attach(cryptoPricesFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    @SuppressLint("ResourceType")
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void sortCryptoPriceChangeLowToHigh(View view) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        // create new Fragment
+        CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices();
+        ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoPriceChangeLowToHigh(unsortedPrices);
+        LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
+
+        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment);
+        fragmentTransaction.attach(cryptoPricesFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    @SuppressLint("ResourceType")
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void sortCryptoPriceChangeHighToLow(View view) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        // create new Fragment
+        CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices();
+        ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoPriceChangeHightoLow(unsortedPrices);
+        LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
+
+        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment);
+        fragmentTransaction.attach(cryptoPricesFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    // tools and apps
     public void sortAppsHighToLow(View view) {
 
         // sort app records to replace current view
@@ -108,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<AppRecord> sortedAppRecords = appMetadataRetriever.sortHighToLow(appRecords);
         replaceToolsAndAppsView(view, sortedAppRecords);
     }
-
 
     public void sortAppsLowToHigh(View view) {
         // sort app records to replace current view
@@ -150,4 +205,5 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
+
 }
