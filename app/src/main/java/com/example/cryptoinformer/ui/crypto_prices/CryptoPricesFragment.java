@@ -1,6 +1,7 @@
 package com.example.cryptoinformer.ui.crypto_prices;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import com.example.cryptoinformer.ui.crypto_tools_and_apps.app_metadata.AppRecord;
 import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
 
 public class CryptoPricesFragment extends Fragment {
@@ -37,6 +37,12 @@ public class CryptoPricesFragment extends Fragment {
     private CryptoPricesViewModel cryptoPricesViewModel;
     private CryptoPriceGenerator priceRetriever;
     public View root;
+
+    // lookup key used to retrieve saved symbols from last view
+    // used during state management via lifecycle methods
+    public static final Integer CRYPTO_SYMBOLS = 66;
+    // last interval for price search
+    public static final Integer PRICE_CHANGE_INTERVAL = 67;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -173,4 +179,102 @@ public class CryptoPricesFragment extends Fragment {
         });
         return priceRecords;
     }
+
+    public void setVarsForViewCreation() {
+        /**
+         * method responsible for retrieving variables from
+         * shared preferences if they were stored.
+         * If not variables under the keys are saved, do nothing, and
+         * let default class settings render view
+         */
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String viewCurrencySymbols = null;
+        String viewPriceChangeInterval = null;
+
+        // retrieve the currency symbols from the saved view to restore the previous view state
+        if (sharedPref.contains(CRYPTO_SYMBOLS.toString())) {
+            viewCurrencySymbols = sharedPref.getString(CRYPTO_SYMBOLS.toString(),null);
+        }
+        if (sharedPref.contains(PRICE_CHANGE_INTERVAL.toString())) {
+            viewPriceChangeInterval = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(), null);
+        }
+    }
+
+    public void storeCurrentViewState () {
+        /**
+         * method responsible for storing relevant
+         * variables in shared preferences for
+         * later retrieval to restore view state
+         */
+        // TODO:: create class level variables to hold view metadata
+        // use shared preferences rather than savedInstancestate, due to
+        // know Android bug with fragment recreation when used as bottom nav
+        // elements
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        // retrieve the current View's crypto symbols, and store in shared preferences
+        editor.putString(CRYPTO_SYMBOLS.toString(), "test_crypto_value");
+        // save the current interval used for price change
+        editor.putString(PRICE_CHANGE_INTERVAL.toString(), "test_crypto_interval");
+        editor.commit();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstance) {
+        super.onCreate(savedInstance);
+        /**
+         this is the initial call to create the fragment,
+         we simply need to set the variables, and
+         let onCreateView run next to generate the view
+        */
+        setVarsForViewCreation();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        /**
+         * In all other non-create cases,
+         * onResume can be guaranteed to be called prior to the activity starting
+         * So we first set the variables to whatever was stored in
+         * shared preferences, and then restore the view to what it
+         * was prior to it being destroyed
+         */
+        setVarsForViewCreation();
+        // check if there were saved variables in shared preferences
+        // this indicates that there was a persisted state, and that
+        // we do need to restore the view
+        if (areDefaultVars()) {
+            // TODO :: replace view with saved variables
+        } //else
+        // do nothing, the view is the default. No need to recreate
+    }
+
+    public boolean areDefaultVars() {
+        /**
+         * method that determines if the variables associated with the view are
+         * in their default state
+         */
+        // TODO:: check variables against "default"
+        return false;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        storeCurrentViewState();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        storeCurrentViewState();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        storeCurrentViewState();
+    }
+
 }

@@ -1,6 +1,8 @@
 package com.example.cryptoinformer;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -206,4 +208,15 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // using shared preferences is due to bug with fragments attached via
+        // bottom nave that prevents context sharing in necessary manner,
+        // and auto-recreates fresh fragments each time
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.commit();
+    }
 }
