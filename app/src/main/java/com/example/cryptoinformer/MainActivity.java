@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
 
-        refreshPriceView(priceRecords, pricesLinearLayout, cryptoPricesFragment);
+        refreshPriceView(priceRecords, pricesLinearLayout, cryptoPricesFragment, view);
 
         currencySymbolView.setText("");
 
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void refreshPriceView(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, CryptoPricesFragment cryptoPricesFragment) {
+    public void refreshPriceView(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, CryptoPricesFragment cryptoPricesFragment, View view) {
 
         // create new Fragment
         ArrayList<TextView> textViews = cryptoPricesFragment.generateTextViewRecords(priceRecords, pricesLinearLayout, App.getAppContext());
@@ -104,7 +104,12 @@ public class MainActivity extends AppCompatActivity {
         for (int i = childCount - 1; i > priceIndexStart; i--) {
             pricesLinearLayout.removeViewAt(i);
         }
-        cryptoPricesFragment.stylizeLayout(textViews, priceRecords, pricesLinearLayout);
+
+        // current search interval
+        Spinner intervalSpinner = view.getRootView().findViewById(R.id.interval_selector_list);
+        String interval = (String) intervalSpinner.getSelectedItem();
+
+        cryptoPricesFragment.stylizeLayout(textViews, priceRecords, pricesLinearLayout, interval);
     }
 
     @SuppressLint("ResourceType")
@@ -114,11 +119,12 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices();
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null);
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoAlphabetically(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
-        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment);
+        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment, view);
+
         fragmentTransaction.attach(cryptoPricesFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -131,11 +137,12 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices();
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null);
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoPriceChangeLowToHigh(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
-        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment);
+        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment, view);
+
         fragmentTransaction.attach(cryptoPricesFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -148,11 +155,12 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices();
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null);
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoPriceChangeHightoLow(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
-        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment);
+        refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment, view);
+
         fragmentTransaction.attach(cryptoPricesFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -160,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
 
     // tools and apps
     public void sortAppsHighToLow(View view) {
-
         // sort app records to replace current view
         ArrayList<AppRecord> appRecords = appMetadataRetriever.getAppMetadata();
         ArrayList<AppRecord> sortedAppRecords = appMetadataRetriever.sortHighToLow(appRecords);
@@ -214,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
         // using shared preferences is due to bug with fragments attached via
         // bottom nave that prevents context sharing in necessary manner,
         // and auto-recreates fresh fragments each time
+        //TODO:: remove, because not necessary if restoring view on rotation
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.clear();

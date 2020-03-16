@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 
@@ -34,15 +35,25 @@ import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
 
 public class CryptoPricesFragment extends Fragment {
 
-    private CryptoPricesViewModel cryptoPricesViewModel;
-    private CryptoPriceGenerator priceRetriever;
-    public View root;
 
     // lookup key used to retrieve saved symbols from last view
     // used during state management via lifecycle methods
     public static final Integer CRYPTO_SYMBOLS = 66;
     // last interval for price search
     public static final Integer PRICE_CHANGE_INTERVAL = 67;
+
+    public static final String DEFAULT_INTERVAL = "1d";
+    // holds the last known list of Crypto symbols
+    // as a comma separated string
+    public String viewCryptoSymbols = null;
+    // holds last known interval for price change
+    public String priceChangeInterval = "1d";
+
+
+    private CryptoPricesViewModel cryptoPricesViewModel;
+    private CryptoPriceGenerator priceRetriever;
+    private ArrayList<PriceRecord> curentDisplayedPrices;
+    public View root;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -59,23 +70,36 @@ public class CryptoPricesFragment extends Fragment {
         
         StrictMode.setThreadPolicy(policy);
         // retrieve prices
-        ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices();
+        // check for saved state
+        ArrayList<String> cryptoSymbolArrList = null;
+        if (viewCryptoSymbols != null) {
+            String[] cryptoStringArr = viewCryptoSymbols.split(",");
+            cryptoSymbolArrList = new ArrayList<>();
+            for (String symbol : cryptoStringArr) {
+                cryptoSymbolArrList.add(symbol);
+            }
+        }
+        ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices(cryptoSymbolArrList);
 
         ArrayList<TextView> textViews = generateTextViewRecords(prices, pricesLinearLayout, App.getAppContext());
 
-        stylizeLayout(textViews, prices, pricesLinearLayout);
+        stylizeLayout(textViews, prices, pricesLinearLayout, this.priceChangeInterval);
 
         return root;
     }
 
-    public void stylizeLayout(ArrayList<TextView> textViews, ArrayList<PriceRecord> priceRecords, LinearLayout targetLayout) {
+    public void stylizeLayout(ArrayList<TextView> textViews, ArrayList<PriceRecord> priceRecords, LinearLayout targetLayout, String interval) {
+        // set the fragment's currently displayed Price Record objects in array list to facilitate saving in SharedPreferences
+        this.curentDisplayedPrices = priceRecords;
+        this.viewCryptoSymbols = generateSymbolString(priceRecords);
+        this.priceChangeInterval = interval;
+
         // get icons for currencies
         ArrayList<ImageView> icons = new ArrayList<>();
 
         for (PriceRecord priceRecord: priceRecords) {
             ImageView icon = generateCurrencyIconView(priceRecord);
             if (icon != null) {
-                //icon.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 icons.add(icon);
             }
         }
@@ -193,29 +217,48 @@ public class CryptoPricesFragment extends Fragment {
 
         // retrieve the currency symbols from the saved view to restore the previous view state
         if (sharedPref.contains(CRYPTO_SYMBOLS.toString())) {
-            viewCurrencySymbols = sharedPref.getString(CRYPTO_SYMBOLS.toString(),null);
+            this.viewCryptoSymbols = sharedPref.getString(CRYPTO_SYMBOLS.toString(),null);
         }
         if (sharedPref.contains(PRICE_CHANGE_INTERVAL.toString())) {
-            viewPriceChangeInterval = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(), null);
+            this.priceChangeInterval = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(), null);
         }
     }
 
-    public void storeCurrentViewState () {
+    public String generateSymbolString(ArrayList<PriceRecord> priceRecords) {
+        // iterate over the price objects, get the symbols, and create a
+        // comma separated string for storage in shared preferences that will be used to restore the view
+        StringBuilder symbolsStringBuilder = new StringBuilder();
+        int numRecords = priceRecords.size();
+        for (int i = 0; i < numRecords; i++)
+        {
+            PriceRecord priceRecord = priceRecords.get(i);
+            String cryptoSymbol = priceRecord.currSymbol;
+            symbolsStringBuilder.append(cryptoSymbol);
+            // don't add comma if this is the last record
+            if (i < numRecords - 1) {
+                symbolsStringBuilder.append(",");
+            }
+        }
+        String cryptoSymbols = symbolsStringBuilder.toString();
+        return cryptoSymbols;
+    }
+
+    public void storeCurrentViewState (String cryptoSymbols, String interval) {
         /**
          * method responsible for storing relevant
          * variables in shared preferences for
          * later retrieval to restore view state
          */
-        // TODO:: create class level variables to hold view metadata
         // use shared preferences rather than savedInstancestate, due to
         // know Android bug with fragment recreation when used as bottom nav
         // elements
+
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         // retrieve the current View's crypto symbols, and store in shared preferences
-        editor.putString(CRYPTO_SYMBOLS.toString(), "test_crypto_value");
+        editor.putString(CRYPTO_SYMBOLS.toString(), cryptoSymbols);
         // save the current interval used for price change
-        editor.putString(PRICE_CHANGE_INTERVAL.toString(), "test_crypto_interval");
+        editor.putString(PRICE_CHANGE_INTERVAL.toString(), interval + "d");
         editor.commit();
     }
 
@@ -240,13 +283,16 @@ public class CryptoPricesFragment extends Fragment {
          * shared preferences, and then restore the view to what it
          * was prior to it being destroyed
          */
-        setVarsForViewCreation();
         // check if there were saved variables in shared preferences
         // this indicates that there was a persisted state, and that
         // we do need to restore the view
-        if (areDefaultVars()) {
+        Boolean isDefault = areDefaultVars();
+        if (isDefault) {
+            String test = null;
+        } else {
             // TODO :: replace view with saved variables
-        } //else
+            String test = null;
+        }
         // do nothing, the view is the default. No need to recreate
     }
 
@@ -255,26 +301,26 @@ public class CryptoPricesFragment extends Fragment {
          * method that determines if the variables associated with the view are
          * in their default state
          */
-        // TODO:: check variables against "default"
+        if (this.priceChangeInterval == this.DEFAULT_INTERVAL && this.viewCryptoSymbols == null) {
+            return true;
+        }// else
         return false;
     }
 
     @Override
     public void onPause() {
+        // only need to override on stop,
+        // as this is always called before onStop and
+        // onDestroy
         super.onPause();
-        storeCurrentViewState();
-    }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        storeCurrentViewState();
-    }
+        LinearLayout priceLinearLayoutView = (LinearLayout) root.findViewById(R.id.price_linear_layout);
+        Spinner intervalSpinner = priceLinearLayoutView.getRootView().findViewById(R.id.interval_selector_list);
+        // retrieve the currently selected price change interval
+        String interval = (String) intervalSpinner.getSelectedItem();
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        storeCurrentViewState();
+        // get a comma separated string from the array of price list names
+        String cryptoSymbols = generateSymbolString(this.curentDisplayedPrices);
+        storeCurrentViewState(cryptoSymbols, interval);
     }
-
 }
