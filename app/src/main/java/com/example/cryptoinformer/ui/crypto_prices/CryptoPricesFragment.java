@@ -79,7 +79,7 @@ public class CryptoPricesFragment extends Fragment {
                 cryptoSymbolArrList.add(symbol);
             }
         }
-        ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices(cryptoSymbolArrList);
+        ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices(cryptoSymbolArrList,this.priceChangeInterval);
 
         ArrayList<TextView> textViews = generateTextViewRecords(prices, pricesLinearLayout, App.getAppContext());
 

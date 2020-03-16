@@ -89,6 +89,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public String getCurrentSearchInterval (View view) {
+
+        // current search interval
+        Spinner intervalSpinner = view.getRootView().findViewById(R.id.interval_selector_list);
+        String interval = (String) intervalSpinner.getSelectedItem();
+        return interval;
+    }
+
     public void refreshPriceView(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, CryptoPricesFragment cryptoPricesFragment, View view) {
 
         // create new Fragment
@@ -105,9 +113,7 @@ public class MainActivity extends AppCompatActivity {
             pricesLinearLayout.removeViewAt(i);
         }
 
-        // current search interval
-        Spinner intervalSpinner = view.getRootView().findViewById(R.id.interval_selector_list);
-        String interval = (String) intervalSpinner.getSelectedItem();
+        String interval = getCurrentSearchInterval(view);
 
         cryptoPricesFragment.stylizeLayout(textViews, priceRecords, pricesLinearLayout, interval);
     }
@@ -119,7 +125,8 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null);
+        String interval = getCurrentSearchInterval(view);
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval + "d");
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoAlphabetically(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
@@ -137,7 +144,8 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null);
+        String interval = getCurrentSearchInterval(view);
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval + "d");
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoPriceChangeLowToHigh(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
@@ -155,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null);
+        String interval = getCurrentSearchInterval(view);
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval + "d");
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoPriceChangeHightoLow(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 

@@ -30,13 +30,17 @@ public class CryptoPriceGenerator {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public ArrayList<PriceRecord> retrieveCryptoPrices(ArrayList<String> symbols) {
+    public ArrayList<PriceRecord> retrieveCryptoPrices(ArrayList<String> symbols, String interval) {
         // default if no arg supplied
         ArrayList<String> targetCryptoSymbols = feedClient.cryptoSymbols;
         if (symbols != null) {
             targetCryptoSymbols = symbols;
         }
-        JSONArray resp = this.feedClient.getCryptoPrices(targetCryptoSymbols, this.defaultIntervalKey);
+        String targetInterval = this.defaultIntervalKey;
+        if (interval != null) {
+            targetInterval = interval;
+        }
+        JSONArray resp = this.feedClient.getCryptoPrices(targetCryptoSymbols, targetInterval);
         this.cryptoPrices = convertResp(resp, this.defaultIntervalKey);
         return this.cryptoPrices;
     }
