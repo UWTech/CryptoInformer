@@ -1,8 +1,10 @@
 package com.example.cryptoinformer;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.hardware.ConsumerIrManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         // current search interval
         Spinner intervalSpinner = view.getRootView().findViewById(R.id.interval_selector_list);
         String interval = (String) intervalSpinner.getSelectedItem();
-        return interval;
+        return interval + "d";
     }
 
     public void refreshPriceView(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, CryptoPricesFragment cryptoPricesFragment, View view) {
@@ -126,15 +128,16 @@ public class MainActivity extends AppCompatActivity {
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
         String interval = getCurrentSearchInterval(view);
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval + "d");
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval);
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoAlphabetically(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
         refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment, view);
 
-        fragmentTransaction.attach(cryptoPricesFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        fragmentTransaction.replace(R.id.price_linear_layout, cryptoPricesFragment).commit();
+        cryptoPricesFragment.storeCurrentViewState(cryptoPricesFragment.generateSymbolString(cryptoPricesFragment.curentDisplayedPrices), cryptoPricesFragment.priceChangeInterval, this);
+        //fragmentTransaction.addToBackStack(null);
+        //fragmentTransaction.commit();
     }
 
     @SuppressLint("ResourceType")
@@ -145,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
         String interval = getCurrentSearchInterval(view);
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval + "d");
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval);
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoPriceChangeLowToHigh(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
@@ -164,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         // create new Fragment
         CryptoPricesFragment cryptoPricesFragment = new CryptoPricesFragment();
         String interval = getCurrentSearchInterval(view);
-        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval + "d");
+        ArrayList<PriceRecord> unsortedPrices = cryptoPriceGenerator.retrieveCryptoPrices(null, interval);
         ArrayList<PriceRecord> priceRecords = cryptoPricesFragment.sortCryptoPriceChangeHightoLow(unsortedPrices);
         LinearLayout pricesLinearLayout = (LinearLayout) view.getRootView().findViewById(R.id.price_linear_layout);
 
@@ -227,13 +230,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // using shared preferences is due to bug with fragments attached via
-        // bottom nave that prevents context sharing in necessary manner,
-        // and auto-recreates fresh fragments each time
-        //TODO:: remove, because not necessary if restoring view on rotation
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.clear();
-        editor.commit();
+        // TODO:: save states
     }
+
 }

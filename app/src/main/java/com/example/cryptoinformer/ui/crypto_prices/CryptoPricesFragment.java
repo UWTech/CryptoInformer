@@ -1,5 +1,6 @@
 package com.example.cryptoinformer.ui.crypto_prices;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -52,7 +53,7 @@ public class CryptoPricesFragment extends Fragment {
 
     private CryptoPricesViewModel cryptoPricesViewModel;
     private CryptoPriceGenerator priceRetriever;
-    private ArrayList<PriceRecord> curentDisplayedPrices;
+    public ArrayList<PriceRecord> curentDisplayedPrices;
     public View root;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -72,14 +73,15 @@ public class CryptoPricesFragment extends Fragment {
         // retrieve prices
         // check for saved state
         ArrayList<String> cryptoSymbolArrList = null;
-        if (viewCryptoSymbols != null) {
+        if (viewCryptoSymbols != null && !viewCryptoSymbols.isEmpty()) {
             String[] cryptoStringArr = viewCryptoSymbols.split(",");
             cryptoSymbolArrList = new ArrayList<>();
             for (String symbol : cryptoStringArr) {
-                cryptoSymbolArrList.add(symbol);
+                if (!symbol.isEmpty())
+                    cryptoSymbolArrList.add(symbol);
             }
         }
-        ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices(cryptoSymbolArrList,this.priceChangeInterval);
+        ArrayList<PriceRecord> prices = priceRetriever.retrieveCryptoPrices(cryptoSymbolArrList, this.priceChangeInterval);
 
         ArrayList<TextView> textViews = generateTextViewRecords(prices, pricesLinearLayout, App.getAppContext());
 
@@ -90,9 +92,9 @@ public class CryptoPricesFragment extends Fragment {
 
     public void stylizeLayout(ArrayList<TextView> textViews, ArrayList<PriceRecord> priceRecords, LinearLayout targetLayout, String interval) {
         // set the fragment's currently displayed Price Record objects in array list to facilitate saving in SharedPreferences
-        this.curentDisplayedPrices = priceRecords;
-        this.viewCryptoSymbols = generateSymbolString(priceRecords);
-        this.priceChangeInterval = interval;
+        curentDisplayedPrices = priceRecords;
+        viewCryptoSymbols = generateSymbolString(priceRecords);
+        priceChangeInterval = interval;
 
         // get icons for currencies
         ArrayList<ImageView> icons = new ArrayList<>();
@@ -104,8 +106,7 @@ public class CryptoPricesFragment extends Fragment {
             }
         }
         int iconIndex = 0;
-        for (int i=0; i < textViews.size(); i +=2) {
-            // TODO:: make sizing of icon pleasing
+        for (int i=0; i < textViews.size(); i +=3) {
             // Element one: Currency icon at the head of the price info
             ImageView sizedIcon = icons.get(iconIndex);
             //sizedIcon.setScaleType(ImageView.ScaleType.MATRIX);
@@ -117,9 +118,14 @@ public class CryptoPricesFragment extends Fragment {
             TextView priceChangeTextView = textViews.get(i);
             priceChangeTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             targetLayout.addView(priceChangeTextView);
+            // Element three: currency symbol string
+            // center text view
+            TextView currencySymbolView = textViews.get(i+1);
+            currencySymbolView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            targetLayout.addView(currencySymbolView);
             // Element three: other currency metadata
             // center text view
-            TextView currencyMetadataTextView = textViews.get(i+1);
+            TextView currencyMetadataTextView = textViews.get(i+2);
             currencyMetadataTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             targetLayout.addView(currencyMetadataTextView);
         }
@@ -130,6 +136,7 @@ public class CryptoPricesFragment extends Fragment {
         for (PriceRecord cryptoPrice: priceRecords) {
             TextView dynamicPriceViewElement = new TextView(context);
             TextView dynamicPriceChange = new TextView(context);
+            TextView dynamicCurrencySymbol = new TextView(context);
 
             Float priceChange = new Float(cryptoPrice.priceChange);
 
@@ -142,8 +149,12 @@ public class CryptoPricesFragment extends Fragment {
 
             String currentPrice = String.format("%.2f", new Float(cryptoPrice.price));
 
-            String cryptoPriceString = String.format("%s \n%s \nPrice: $%s",
-                    cryptoPrice.currSymbol, cryptoPrice.currName, currentPrice, cryptoPrice.logoURL);
+            String currencySymbol = String.format("%s", cryptoPrice.currSymbol);
+            dynamicCurrencySymbol.setText(currencySymbol);
+            dynamicCurrencySymbol.setTypeface(null, Typeface.BOLD);
+
+            String cryptoPriceString = String.format("%s \nPrice: $%s",
+                    cryptoPrice.currName, currentPrice, cryptoPrice.logoURL);
             dynamicPriceViewElement.setText(cryptoPriceString + "\n\n\n");
             dynamicPriceViewElement.setTypeface(null, Typeface.BOLD);
 
@@ -152,6 +163,7 @@ public class CryptoPricesFragment extends Fragment {
             dynamicPriceChange.setTypeface(null,Typeface.BOLD_ITALIC);
 
             cryptoViews.add(dynamicPriceChange);
+            cryptoViews.add(dynamicCurrencySymbol);
             cryptoViews.add(dynamicPriceViewElement);
         }
         return cryptoViews;
@@ -215,12 +227,14 @@ public class CryptoPricesFragment extends Fragment {
         String viewCurrencySymbols = null;
         String viewPriceChangeInterval = null;
 
+        // TODO:: decrypt from base 64
+
         // retrieve the currency symbols from the saved view to restore the previous view state
         if (sharedPref.contains(CRYPTO_SYMBOLS.toString())) {
             this.viewCryptoSymbols = sharedPref.getString(CRYPTO_SYMBOLS.toString(),null);
         }
         if (sharedPref.contains(PRICE_CHANGE_INTERVAL.toString())) {
-            this.priceChangeInterval = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(), null);
+            this.priceChangeInterval = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(), "1d");
         }
     }
 
@@ -243,7 +257,7 @@ public class CryptoPricesFragment extends Fragment {
         return cryptoSymbols;
     }
 
-    public void storeCurrentViewState (String cryptoSymbols, String interval) {
+    public void storeCurrentViewState (String cryptoSymbols, String interval, Activity activity) {
         /**
          * method responsible for storing relevant
          * variables in shared preferences for
@@ -253,7 +267,10 @@ public class CryptoPricesFragment extends Fragment {
         // know Android bug with fragment recreation when used as bottom nav
         // elements
 
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        //  TODO:: convert to base 64 to avoid storing in plain text/encrypt
+
+        // set the mode of the preferences to private to ensure user security
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         // retrieve the current View's crypto symbols, and store in shared preferences
         editor.putString(CRYPTO_SYMBOLS.toString(), cryptoSymbols);
@@ -288,9 +305,11 @@ public class CryptoPricesFragment extends Fragment {
         // we do need to restore the view
         Boolean isDefault = areDefaultVars();
         if (isDefault) {
-            String test = null;
+            // take no action; the default view
+            // is auto generated, so no need to restore state
         } else {
             // TODO :: replace view with saved variables
+            // Note: Fragment is always recreated, so this is never actually called
             String test = null;
         }
         // do nothing, the view is the default. No need to recreate
@@ -309,7 +328,7 @@ public class CryptoPricesFragment extends Fragment {
 
     @Override
     public void onPause() {
-        // only need to override on stop,
+        // only need to override on pause,
         // as this is always called before onStop and
         // onDestroy
         super.onPause();
@@ -319,8 +338,30 @@ public class CryptoPricesFragment extends Fragment {
         // retrieve the currently selected price change interval
         String interval = (String) intervalSpinner.getSelectedItem();
 
-        // get a comma separated string from the array of price list names
-        String cryptoSymbols = generateSymbolString(this.curentDisplayedPrices);
-        storeCurrentViewState(cryptoSymbols, interval);
+        // get the total number of elements in the current search results
+        int childCount = priceLinearLayoutView.getChildCount();
+        // index that price elements start at
+        int priceIndexStart = 4;
+        // will hold the comma separated currency symbols
+        StringBuilder cryptoSymbolsBuilder = new StringBuilder();
+
+        // iterate over the elements, and extract the string that contains the currency symbol
+        for (int i = (childCount - 1); i > priceIndexStart; ) {
+            // each crypto currency view item consists of three distinct view elements
+            // icon (image view), price change text view, crypto symbol text view, and metadata text view
+            int symbolTextViewIndex = i - 1;
+            TextView cryptoSymbolView = (TextView) priceLinearLayoutView.getChildAt(symbolTextViewIndex);
+            String cryptoSymbol = cryptoSymbolView.getText().toString();
+            cryptoSymbolsBuilder.append(cryptoSymbol);
+
+            // decrement to indicate this cyrptocurrency's view is saved
+            i -= 4;
+            // if this is not the last element, append a comma
+            if (i > priceIndexStart) {
+                cryptoSymbolsBuilder.append(",");
+            }
+        }
+        String cryptoSymbols = cryptoSymbolsBuilder.toString();
+        storeCurrentViewState(cryptoSymbols, interval, getActivity());
     }
 }
