@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
         String interval = getCurrentSearchInterval(view);
 
-        cryptoPricesFragment.stylizeLayout(textViews, priceRecords, pricesLinearLayout, interval);
+        cryptoPricesFragment.stylizeLayout(textViews, priceRecords, pricesLinearLayout, interval, this);
     }
 
     @SuppressLint("ResourceType")
@@ -135,9 +135,6 @@ public class MainActivity extends AppCompatActivity {
         refreshPriceView(priceRecords, pricesLinearLayout,  cryptoPricesFragment, view);
 
         fragmentTransaction.replace(R.id.price_linear_layout, cryptoPricesFragment).commit();
-        cryptoPricesFragment.storeCurrentViewState(cryptoPricesFragment.generateSymbolString(cryptoPricesFragment.curentDisplayedPrices), cryptoPricesFragment.priceChangeInterval, this);
-        //fragmentTransaction.addToBackStack(null);
-        //fragmentTransaction.commit();
     }
 
     @SuppressLint("ResourceType")

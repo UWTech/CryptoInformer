@@ -29,6 +29,7 @@ import com.example.cryptoinformer.ui.crypto_prices.price_feed.CryptoPriceGenerat
 import com.example.cryptoinformer.ui.crypto_prices.price_feed.PriceRecord;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -66,7 +67,7 @@ public class CryptoPricesFragment extends Fragment {
                 ViewModelProviders.of(this).get(CryptoPricesViewModel.class);
         root = inflater.inflate(R.layout.fragment_prices, container, false);
         LinearLayout pricesLinearLayout = (LinearLayout) root.findViewById(R.id.price_linear_layout);
-        //TODO:: remove this after making class async
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         
         StrictMode.setThreadPolicy(policy);
@@ -85,12 +86,13 @@ public class CryptoPricesFragment extends Fragment {
 
         ArrayList<TextView> textViews = generateTextViewRecords(prices, pricesLinearLayout, App.getAppContext());
 
-        stylizeLayout(textViews, prices, pricesLinearLayout, this.priceChangeInterval);
+        stylizeLayout(textViews, prices, pricesLinearLayout, this.priceChangeInterval, getActivity());
 
         return root;
     }
 
-    public void stylizeLayout(ArrayList<TextView> textViews, ArrayList<PriceRecord> priceRecords, LinearLayout targetLayout, String interval) {
+    public void stylizeLayout(ArrayList<TextView> textViews, ArrayList<PriceRecord> priceRecords, LinearLayout targetLayout, String interval,
+                              Activity activity) {
         // set the fragment's currently displayed Price Record objects in array list to facilitate saving in SharedPreferences
         curentDisplayedPrices = priceRecords;
         viewCryptoSymbols = generateSymbolString(priceRecords);
@@ -129,6 +131,7 @@ public class CryptoPricesFragment extends Fragment {
             currencyMetadataTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             targetLayout.addView(currencyMetadataTextView);
         }
+        storeCurrentViewState(viewCryptoSymbols, priceChangeInterval, activity);
     }
 
     public ArrayList<TextView> generateTextViewRecords(ArrayList<PriceRecord> priceRecords, LinearLayout pricesLinearLayout, Context context) {
@@ -224,8 +227,6 @@ public class CryptoPricesFragment extends Fragment {
          * let default class settings render view
          */
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        String viewCurrencySymbols = null;
-        String viewPriceChangeInterval = null;
 
         // TODO:: decrypt from base 64
 
@@ -234,7 +235,8 @@ public class CryptoPricesFragment extends Fragment {
             this.viewCryptoSymbols = sharedPref.getString(CRYPTO_SYMBOLS.toString(),null);
         }
         if (sharedPref.contains(PRICE_CHANGE_INTERVAL.toString())) {
-            this.priceChangeInterval = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(), "1d");
+            String priceChangeDayCount = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(), "1");
+            this.priceChangeInterval = priceChangeDayCount + "d";
         }
     }
 
@@ -267,6 +269,11 @@ public class CryptoPricesFragment extends Fragment {
         // know Android bug with fragment recreation when used as bottom nav
         // elements
 
+        // if not activity in this view context, return without storing, and rely on on pause
+        if (activity == null){
+            return;
+        }
+
         //  TODO:: convert to base 64 to avoid storing in plain text/encrypt
 
         // set the mode of the preferences to private to ensure user security
@@ -274,8 +281,12 @@ public class CryptoPricesFragment extends Fragment {
         SharedPreferences.Editor editor = sharedPref.edit();
         // retrieve the current View's crypto symbols, and store in shared preferences
         editor.putString(CRYPTO_SYMBOLS.toString(), cryptoSymbols);
-        // save the current interval used for price change
-        editor.putString(PRICE_CHANGE_INTERVAL.toString(), interval + "d");
+        // remove the trailing day value if present
+        if (interval.contains("d")) {
+            interval = interval.substring(0, (interval.length() -1));
+        }
+        //store the numeric day count of the price change interval
+        editor.putString(PRICE_CHANGE_INTERVAL.toString(), interval);
         editor.commit();
     }
 
@@ -291,6 +302,7 @@ public class CryptoPricesFragment extends Fragment {
     }
 
     @Override
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void onResume() {
         super.onResume();
         /**
@@ -300,27 +312,46 @@ public class CryptoPricesFragment extends Fragment {
          * shared preferences, and then restore the view to what it
          * was prior to it being destroyed
          */
-        // check if there were saved variables in shared preferences
-        // this indicates that there was a persisted state, and that
-        // we do need to restore the view
+        // check if the variables are default, or if they have already been restored
+        // from the saved state. This indicates, we do not need to restore the view here
         Boolean isDefault = areDefaultVars();
         if (isDefault) {
             // take no action; the default view
-            // is auto generated, so no need to restore state
+            // is auto generated on create, so no need to restore state
         } else {
-            // TODO :: replace view with saved variables
-            // Note: Fragment is always recreated, so this is never actually called
-            String test = null;
+            // restore view, keeping in mind prices may have changed since last refresh of view,
+            // so we need to retrieve the prices again
+
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            String interval = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(),"1");
+            interval += "d";
+            String cryptoSymoblsString =  sharedPref.getString(CRYPTO_SYMBOLS.toString(),null);
+
+            // if empty string was saved, or the string is null,
+            // rely on the default view creation behavior
+            if (cryptoSymoblsString != null && !cryptoSymoblsString.isEmpty()) {
+                LinearLayout priceLinearLayoutView = (LinearLayout) root.findViewById(R.id.price_linear_layout);
+
+                ArrayList<String> cryptoSymbolStringArr = new ArrayList(Arrays.asList(cryptoSymoblsString.split(",")));
+
+                ArrayList<PriceRecord> priceRecords = priceRetriever.retrieveCryptoPrices(cryptoSymbolStringArr, interval);
+                ArrayList<TextView> priceTextViews = generateTextViewRecords(priceRecords, priceLinearLayoutView, getContext());
+                stylizeLayout(priceTextViews, priceRecords, priceLinearLayoutView, interval, getActivity());
+            }
         }
-        // do nothing, the view is the default. No need to recreate
     }
 
     public boolean areDefaultVars() {
         /**
          * method that determines if the variables associated with the view are
-         * in their default state
+         * in their default state, or have already been loaded from shared preferences
          */
-        if (this.priceChangeInterval == this.DEFAULT_INTERVAL && this.viewCryptoSymbols == null) {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String interval = sharedPref.getString(PRICE_CHANGE_INTERVAL.toString(),"1");
+        interval += "d";
+        String cryptoSymoblsString =  sharedPref.getString(CRYPTO_SYMBOLS.toString(),null);
+        if ((this.priceChangeInterval.equals(this.DEFAULT_INTERVAL) && this.viewCryptoSymbols == null) ||
+                (this.priceChangeInterval.equals(interval) && this.viewCryptoSymbols.equals(cryptoSymoblsString))){
             return true;
         }// else
         return false;
