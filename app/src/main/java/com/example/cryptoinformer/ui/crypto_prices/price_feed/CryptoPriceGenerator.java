@@ -41,7 +41,7 @@ public class CryptoPriceGenerator {
             targetInterval = interval;
         }
         JSONArray resp = this.feedClient.getCryptoPrices(targetCryptoSymbols, targetInterval);
-        this.cryptoPrices = convertResp(resp, this.defaultIntervalKey);
+        this.cryptoPrices = convertResp(resp, targetInterval);
         return this.cryptoPrices;
     }
 

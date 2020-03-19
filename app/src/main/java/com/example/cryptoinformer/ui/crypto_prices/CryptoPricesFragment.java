@@ -228,8 +228,6 @@ public class CryptoPricesFragment extends Fragment {
          */
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
-        // TODO:: decrypt from base 64
-
         // retrieve the currency symbols from the saved view to restore the previous view state
         if (sharedPref.contains(CRYPTO_SYMBOLS.toString())) {
             this.viewCryptoSymbols = sharedPref.getString(CRYPTO_SYMBOLS.toString(),null);
@@ -375,7 +373,7 @@ public class CryptoPricesFragment extends Fragment {
         StringBuilder cryptoSymbolsBuilder = new StringBuilder();
 
         // iterate over the elements, and extract the string that contains the currency symbol
-        for (int i = (childCount - 1); i > priceIndexStart; ) {
+        for (int i = (childCount - 1); i > priceIndexStart; i -=4) {
             // each crypto currency view item consists of three distinct view elements
             // icon (image view), price change text view, crypto symbol text view, and metadata text view
             int symbolTextViewIndex = i - 1;
@@ -384,9 +382,10 @@ public class CryptoPricesFragment extends Fragment {
             cryptoSymbolsBuilder.append(cryptoSymbol);
 
             // decrement to indicate this cyrptocurrency's view is saved
-            i -= 4;
+            //i -= 4;
             // if this is not the last element, append a comma
-            if (i > priceIndexStart) {
+            int nextCount = (i -4);
+            if (nextCount > priceIndexStart) {
                 cryptoSymbolsBuilder.append(",");
             }
         }

@@ -107,9 +107,16 @@ public class CryptoToolsAndAppsFragment extends Fragment {
             toolsAndAppsLinearLayout.addView(dynamicDownloadLink);
 
             // generate metadata for app
+            TextView dynamicAppName = new TextView(App.context);
+            String appName = String.format("%s", appRecord.appName);
+            dynamicAppName.setText(appName);
+            dynamicAppName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            dynamicAppName.setTypeface(null, Typeface.BOLD);
+            toolsAndAppsLinearLayout.addView(dynamicAppName);
+
             TextView dynamicAppToolMetadata = new TextView(App.context);
-            String appMetadataString = String.format("%s \n%s \nRating: %.1f\n\n",
-                    appRecord.appName, appRecord.description, appRecord.rating);
+            String appMetadataString = String.format("%s \nRating: %.1f\n\n",
+                    appRecord.description, appRecord.rating);
             dynamicAppToolMetadata.setText(appMetadataString + "\n");
             dynamicAppToolMetadata.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             dynamicAppToolMetadata.setTypeface(null, Typeface.BOLD);
@@ -207,6 +214,31 @@ public class CryptoToolsAndAppsFragment extends Fragment {
         LinearLayout currView = (LinearLayout) root.findViewById(R.id.tools_and_apps_linear_layout);
 
         // retrieve the current list of apps and tools
+        // order of elements:
+        // icon, link to play store, name, metadata
+        // get the total number of elements in the current search results
+        int childCount = currView.getChildCount();
+        // index that price elements start at
+        int priceIndexStart = 4;
+        // will hold the comma separated currency symbols
+        StringBuilder cryptoSymbolsBuilder = new StringBuilder();
+
+        // iterate over the elements, and extract the string that contains the currency symbol
+        for (int i = (childCount - 1); i > priceIndexStart; ) {
+            // each crypto currency view item consists of three distinct view elements
+            // icon (image view), price change text view, crypto symbol text view, and metadata text view
+            int symbolTextViewIndex = i - 1;
+            TextView crypoToolView = (TextView) currView.getChildAt(symbolTextViewIndex);
+            String cryptoSymbol = crypoToolView.getText().toString();
+            cryptoSymbolsBuilder.append(cryptoSymbol);
+
+            // decrement to indicate this view is saved
+            i -= 4;
+            // if this is not the last element, append a comma
+            if (i > priceIndexStart) {
+                cryptoSymbolsBuilder.append(",");
+            }
+        }
 
         storeCurrentState(currentApps, getActivity());
     }
