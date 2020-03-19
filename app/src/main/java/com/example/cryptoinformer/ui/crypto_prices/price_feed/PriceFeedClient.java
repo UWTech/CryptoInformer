@@ -82,7 +82,6 @@ public class PriceFeedClient {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // TODO:: error handling framework
         return null;
     }
 

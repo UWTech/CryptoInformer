@@ -25,13 +25,9 @@ public class RSSRetriver {
         this.titleLinkMap = new Hashtable<>();
         this.RSSFeeds = new ArrayList<String>();
 
-        // TODO:: set this with dependency injection
-        // TODO:: add more RSS feeds
         this.RSSFeeds.add("https://cointelegraph.com/rss/tag/blockchain");
-        // this.RSSFeeds.add("https://www.coindesk.com/feed");
-        // this.RSSFeeds.add("https://news.bitcoin.com/feed/");
-        // this.RSSFeeds.add("https://www.newsbtc.com/feed");
-        // this.RSSFeeds.add("https://www.cryptoninjas.net/feed/");
+        this.RSSFeeds.add("https://www.coindesk.com/feed");
+        this.RSSFeeds.add("https://news.bitcoin.com/feed/");
     }
 
     public List<String> getTitles() {
@@ -65,7 +61,6 @@ public class RSSRetriver {
         mapTitles();
     }
 
-    // TODO:: make async
     private void getRSSFeed(URL url) throws IOException, XmlPullParserException {
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         factory.setNamespaceAware(false);

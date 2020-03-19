@@ -34,7 +34,6 @@ public class NewsFragment extends Fragment {
 
         LinearLayout newsLinearLayout = (LinearLayout) root.findViewById(R.id.news_linear_layout);
 
-        //TODO:: remove this after making class async
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
@@ -47,7 +46,6 @@ public class NewsFragment extends Fragment {
         }
         // dynamically add RSS feed items to view
         for (String articleTitle : rssRetriver.getTitleMapKeyset()) {
-            // TODO:: stylize elements
             String rssURL = rssRetriver.getTitleRecord(articleTitle);
             TextView dynamicNewsViewElement = new TextView(getContext());
             dynamicNewsViewElement.setText(Html.fromHtml("<a href='" + rssURL + "'>" +articleTitle+ "</a>" +"\n"));
