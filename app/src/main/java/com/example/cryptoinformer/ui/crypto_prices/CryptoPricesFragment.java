@@ -274,8 +274,6 @@ public class CryptoPricesFragment extends Fragment {
             return;
         }
 
-        //  TODO:: convert to base 64 to avoid storing in plain text/encrypt
-
         // set the mode of the preferences to private to ensure user security
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();

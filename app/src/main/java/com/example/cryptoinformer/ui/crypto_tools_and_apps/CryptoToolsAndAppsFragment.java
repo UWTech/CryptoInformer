@@ -1,5 +1,8 @@
 package com.example.cryptoinformer.ui.crypto_tools_and_apps;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -30,11 +33,20 @@ import com.github.twocoffeesoneteam.glidetovectoryou.GlideToVectorYou;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class CryptoToolsAndAppsFragment extends Fragment {
 
-    private CryptoToolsAndAppsViewModel notificationsViewModel;
+    private static final Integer APP_SORT_ORDER = 75;
 
+    private CryptoToolsAndAppsViewModel notificationsViewModel;
+    // current sort order of apps
+    private ArrayList<AppRecord> currentApps = null;
+
+    // comma separated string that stores the last sort order of
+    // apps
+    private String appNameOrder = null;
+    public View root;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         notificationsViewModel =
@@ -49,10 +61,19 @@ public class CryptoToolsAndAppsFragment extends Fragment {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
+        ArrayList<AppRecord> apps;
         // retrieve prices
-        ArrayList<AppRecord> apps = appMetadataRetriever.getAppMetadata();
+        // if the state was not restored by onCreate
+        if (currentApps == null) {
+            // retrieve a fresh list of apps
+            apps = appMetadataRetriever.getAppMetadata();
+        } else {
+            apps = currentApps;
+        }
 
-        generateAndStylizeView(apps, toolsAndAppsLinearLayout);
+        generateAndStylizeView(apps, toolsAndAppsLinearLayout, getActivity());
+
+        // store the current sort order in preferences
 
         final TextView textView = root.findViewById(R.id.text_notifications);
         notificationsViewModel.getText().observe(this, new Observer<String>() {
@@ -61,10 +82,15 @@ public class CryptoToolsAndAppsFragment extends Fragment {
                 textView.setText(s);
             }
         });
+        this.root = root;
         return root;
     }
 
-    public void generateAndStylizeView(ArrayList<AppRecord> appRecords, LinearLayout toolsAndAppsLinearLayout) {
+    public void generateAndStylizeView(ArrayList<AppRecord> appRecords, LinearLayout toolsAndAppsLinearLayout, Activity activity) {
+        // store current order of apps
+        storeCurrentState(appRecords, activity);
+        currentApps = appRecords;
+
         for (AppRecord appRecord: appRecords) {
 
             // load icon into view
@@ -102,5 +128,86 @@ public class CryptoToolsAndAppsFragment extends Fragment {
         catch (Exception e){
             return null;
         }
+    }
+
+    public void storeCurrentState(ArrayList<AppRecord> appRecords, Activity activity) {
+
+        StringBuilder appOrder = new StringBuilder();
+
+        for (int i = 0; i < appRecords.size(); i++) {
+            // clean up string
+            String appName = appRecords.get(i).appName.trim();
+            appOrder.append(appName);
+            if ((i+1) < appRecords.size()) {
+                appOrder.append(",");
+            }
+        }
+        String appOrderString = appOrder.toString();
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(APP_SORT_ORDER.toString(), appOrderString);
+        editor.commit();
+    }
+
+    public void restoreSavedState() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        this.appNameOrder = sharedPref.getString(APP_SORT_ORDER.toString(), null);
+    }
+
+    public ArrayList<AppRecord> sortApps(ArrayList<AppRecord> appRecords, String sortOrderString) {
+        /**
+         * sorts the apps based on the supplied sort order in the
+         * comma separated string
+         */
+        // create a dictionary to avoid n^2 sort
+        HashMap<String, AppRecord> appNameMap = new HashMap();
+        for (AppRecord appRecord: appRecords) {
+            // trim whitespace
+            String appName = appRecord.appName.trim();
+            appNameMap.put(appName, appRecord);
+        }
+
+        ArrayList<AppRecord> sortedApps = new ArrayList<>();
+        String[] appNameOrder = sortOrderString.split(",");
+
+        for (String appName : appNameOrder) {
+            sortedApps.add(appNameMap.get(appName));
+        }
+        return sortedApps;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        restoreSavedState();
+        if (this.appNameOrder != null && this.appNameOrder.isEmpty()) {
+            // retrieve the app metadata
+            AppMetadataRetriever appMetadataRetriever = new AppMetadataRetriever();
+            ArrayList<AppRecord> appRecords = appMetadataRetriever.getAppMetadata();
+
+            // sort the apps
+            ArrayList<AppRecord> sortedRecords = sortApps(appRecords, appNameOrder);
+            // set this instances app order variable
+            this.currentApps = sortedRecords;
+        } // else
+        // no saved state, allow default creation
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        // only need to override on pause,
+        // as this is always called before onStop and
+        // onDestroy
+        super.onPause();
+        LinearLayout currView = (LinearLayout) root.findViewById(R.id.tools_and_apps_linear_layout);
+
+        // retrieve the current list of apps and tools
+
+        storeCurrentState(currentApps, getActivity());
     }
 }

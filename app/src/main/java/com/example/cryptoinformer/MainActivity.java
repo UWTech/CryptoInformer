@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // add new elements to the linear layout
-        sortedFragment.generateAndStylizeView(sortedAppRecords, currentAppsAndToolsLayout);
+        sortedFragment.generateAndStylizeView(sortedAppRecords, currentAppsAndToolsLayout, this);
 
         // attach the now sorted fragment
         fragmentTransaction.attach(sortedFragment);
