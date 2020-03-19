@@ -373,19 +373,29 @@ public class CryptoPricesFragment extends Fragment {
         StringBuilder cryptoSymbolsBuilder = new StringBuilder();
 
         // iterate over the elements, and extract the string that contains the currency symbol
-        for (int i = (childCount - 1); i > priceIndexStart; i -=4) {
+        for (int i = priceIndexStart; i < childCount; i +=4) {
             // each crypto currency view item consists of three distinct view elements
             // icon (image view), price change text view, crypto symbol text view, and metadata text view
-            int symbolTextViewIndex = i - 1;
-            TextView cryptoSymbolView = (TextView) priceLinearLayoutView.getChildAt(symbolTextViewIndex);
-            String cryptoSymbol = cryptoSymbolView.getText().toString();
-            cryptoSymbolsBuilder.append(cryptoSymbol);
-
-            // decrement to indicate this cyrptocurrency's view is saved
-            //i -= 4;
+            int symbolTextViewIndex = i + 3;
+            // increment to indicate this cyrptocurrency's view is saved
+            //i += 4;
+            int nextCount = (i + 4);
+            try {
+                TextView cryptoSymbolView = (TextView) priceLinearLayoutView.getChildAt(symbolTextViewIndex);
+                String cryptoSymbol = cryptoSymbolView.getText().toString();
+                cryptoSymbolsBuilder.append(cryptoSymbol);
+            } catch (Exception e) {
+                // occassionally, there are errors in retrieving an icon, or some
+                // metadata is not included in the response, in these cases, we skip those records
+                // if this was the last record, remove the trailing comma
+                if(nextCount >= childCount) {
+                    int length = cryptoSymbolsBuilder.length();
+                    cryptoSymbolsBuilder.deleteCharAt((length-1));
+                }
+                continue;
+            }
             // if this is not the last element, append a comma
-            int nextCount = (i -4);
-            if (nextCount > priceIndexStart) {
+            if (nextCount < childCount) {
                 cryptoSymbolsBuilder.append(",");
             }
         }

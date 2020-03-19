@@ -57,7 +57,6 @@ public class CryptoToolsAndAppsFragment extends Fragment {
 
         LinearLayout toolsAndAppsLinearLayout = (LinearLayout) root.findViewById(R.id.tools_and_apps_linear_layout);
 
-        //TODO:: remove this after making class async
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
@@ -150,15 +149,32 @@ public class CryptoToolsAndAppsFragment extends Fragment {
             }
         }
         String appOrderString = appOrder.toString();
+        storeCurrentSortOrderString(appOrderString, activity);
+    }
+
+    public void storeCurrentSortOrderString(String sortOrderString, Activity activity) {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(APP_SORT_ORDER.toString(), appOrderString);
+        editor.putString(APP_SORT_ORDER.toString(), sortOrderString);
         editor.commit();
     }
 
-    public void restoreSavedState() {
+    public String restoreSavedState() {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        this.appNameOrder = sharedPref.getString(APP_SORT_ORDER.toString(), null);
+        String appOrder = sharedPref.getString(APP_SORT_ORDER.toString(), null);
+        this.appNameOrder = appOrder;
+        return appOrder;
+    }
+
+    public void setSortOrderOfApps(String appOrder) {
+        // retrieve the app metadata
+        AppMetadataRetriever appMetadataRetriever = new AppMetadataRetriever();
+        ArrayList<AppRecord> appRecords = appMetadataRetriever.getAppMetadata();
+
+        // sort the apps
+        ArrayList<AppRecord> sortedRecords = sortApps(appRecords, appOrder);
+        // set this instances app order variable
+        this.currentApps = sortedRecords;
     }
 
     public ArrayList<AppRecord> sortApps(ArrayList<AppRecord> appRecords, String sortOrderString) {
@@ -186,23 +202,36 @@ public class CryptoToolsAndAppsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        restoreSavedState();
-        if (this.appNameOrder != null && this.appNameOrder.isEmpty()) {
-            // retrieve the app metadata
-            AppMetadataRetriever appMetadataRetriever = new AppMetadataRetriever();
-            ArrayList<AppRecord> appRecords = appMetadataRetriever.getAppMetadata();
-
-            // sort the apps
-            ArrayList<AppRecord> sortedRecords = sortApps(appRecords, appNameOrder);
-            // set this instances app order variable
-            this.currentApps = sortedRecords;
+        String appOrder = restoreSavedState();
+        if (appOrder != null && !appOrder.isEmpty()) {
+            setSortOrderOfApps(appOrder);
         } // else
         // no saved state, allow default creation
+    }
+
+    public boolean isDefault() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String savedAppOrder = sharedPref.getString(APP_SORT_ORDER.toString(), null);
+
+        if (this.appNameOrder == null || this.appNameOrder.equals(savedAppOrder)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        // check if the appNameOrder string is default,
+        // or if it was already restored from what is saved
+        if (isDefault()) {
+            // do nothing, this is a new activity,
+            // or the state was restored to last saved
+            // during overriden on create method
+        } else {
+            setSortOrderOfApps(restoreSavedState());
+        }
     }
 
     @Override
@@ -224,22 +253,24 @@ public class CryptoToolsAndAppsFragment extends Fragment {
         StringBuilder cryptoSymbolsBuilder = new StringBuilder();
 
         // iterate over the elements, and extract the string that contains the currency symbol
-        for (int i = (childCount - 1); i > priceIndexStart; ) {
-            // each crypto currency view item consists of three distinct view elements
-            // icon (image view), price change text view, crypto symbol text view, and metadata text view
-            int symbolTextViewIndex = i - 1;
+        for (int i = 4; i < childCount; i+=4) {
+            // each app element has 4 items in the following order
+            // icon, hyperlink to Googleplay, app name, metadata
+            int symbolTextViewIndex = (i+2);
             TextView crypoToolView = (TextView) currView.getChildAt(symbolTextViewIndex);
-            String cryptoSymbol = crypoToolView.getText().toString();
-            cryptoSymbolsBuilder.append(cryptoSymbol);
+            String appName = crypoToolView.getText().toString();
+            // cleanup name String
+            appName = appName.trim();
+            appName = appName.replaceAll(",","");
+            cryptoSymbolsBuilder.append(appName);
 
-            // decrement to indicate this view is saved
-            i -= 4;
+            int nextIndex = (i+4);
             // if this is not the last element, append a comma
-            if (i > priceIndexStart) {
+            if (nextIndex < childCount) {
                 cryptoSymbolsBuilder.append(",");
             }
         }
 
-        storeCurrentState(currentApps, getActivity());
+        storeCurrentSortOrderString(cryptoSymbolsBuilder.toString(), getActivity());
     }
 }
