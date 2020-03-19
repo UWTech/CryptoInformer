@@ -223,11 +223,4 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // TODO:: save states
-    }
-
 }
