@@ -1,16 +1,16 @@
-package com.example.cryptoinformer.ui.dashboard;
+package com.example.cryptoinformer.ui.crypto_news;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class DashboardViewModel extends ViewModel {
+public class NewsViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public DashboardViewModel() {
+    public NewsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        //mText.setValue("This is home fragment");
     }
 
     public LiveData<String> getText() {

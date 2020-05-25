@@ -3,23 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_news">
 
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.example.cryptoinformer.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/navigation_news"
+        android:name="com.example.cryptoinformer.ui.crypto_news.NewsFragment"
+        android:label="@string/title_newsfeed"
+        tools:layout="@layout/fragment_news" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.cryptoinformer.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_prices"
+        android:tag="price_fragment"
+        android:name="com.example.cryptoinformer.ui.crypto_prices.CryptoPricesFragment"
+        android:label="@string/title_crypto_prices"
+        tools:layout="@layout/fragment_prices" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.cryptoinformer.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_apps_and_tools"
+        android:name="com.example.cryptoinformer.ui.crypto_tools_and_apps.CryptoToolsAndAppsFragment"
+        android:label="@string/title_crypto_apps"
+        tools:layout="@layout/fragment_tools_and_apps" />
 </navigation>
